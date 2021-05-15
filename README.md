@@ -13,8 +13,6 @@ pieces are not required to implement an MVU application on top of Movium.
 This framework is currently in an experimental phase, and the API may change
 from time to time. Do not expect a stable release until version `1.0.0`.
 
-## Contents
-
 ## Installation
 
 TODO
