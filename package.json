@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "MVU JavaScript web framework",
   "main": "dist/movium.js",
+  "module": "src/index.js",
   "repository": "https://github.com/foxbunny/movium.git",
   "author": "Devius LLP <hi@devi.us>",
   "license": "MIT",
