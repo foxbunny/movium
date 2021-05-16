@@ -1,6 +1,6 @@
 import { h } from 'snabbdom'
 import { Append, assignPath, id, partial } from './tools'
-import { val } from './types'
+import { is, val } from './types'
 
 let el = name => (props = null, ...children) => updater => {
   let propsObj = {}
@@ -9,7 +9,7 @@ let el = name => (props = null, ...children) => updater => {
   if (props) for (let p of props) {
     if (p == null) continue
     if (typeof p === 'function') p = p(updater)
-    propsObj = assignPath(p, propsObj)
+    if (is(Array, p)) propsObj = assignPath(p, propsObj)
   }
 
   for (let c of children.flat()) {
@@ -61,6 +61,9 @@ let contentEditable = partial(prop, 'contentEditable')
 let tabIndex = partial(prop, 'tabIndex')
 let disabled = partial(prop, 'disabled')
 
+// Styles
+let style = styles => ['style', styles]
+
 // Hooks
 let hook = (hookName, f) => update => [
   'hook',
@@ -91,6 +94,12 @@ let listener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
 let onClick = listener('click', id)
 let onInput = listener('input', ev => typeof ev.target.value === 'string' ? ev.target.value : ev.target.innerText)
 let onBlur = listener('blur', id)
+let onMouseDown = listener('mousedown', id)
+let onMouseMove = listener('mousemove', id)
+let onMouseUp = listener('mouseup', id)
+let onTouchStart = listener('touchstart', id)
+let onTouchMove = listener('touchmove', id)
+let onTouchEnd = listener('touchend', id)
 let onKeydown = listener('keydown', codeGetter)
 let onKeyup = listener('keyup', codeGetter)
 let onKeypress = listener('keypress', codeGetter)
@@ -104,6 +113,57 @@ let onKey = (key, type, f = codeGetter) => update =>
       update(val(type, f(ev)))
     }),
   ]
+
+// (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
+let outsideListener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
+  ['onOutside', eventName, Append.val(ev => update(val(proto, f(ev))))]
+let onClickOutside = outsideListener('click', id)
+let onMouseDownOutside = outsideListener('mousedown', id)
+let onMouseMoveOutside = outsideListener('mousemove', id)
+let onMouseUpOutside = outsideListener('mouseup', id)
+let onTouchStartOutside = outsideListener('touchstart', id)
+let onTouchMoveOutside = outsideListener('touchmove', id)
+let onTouchEndOutside = outsideListener('touchend', id)
+let onKeydownOutside = outsideListener('keydown', codeGetter)
+let onKeyupOutside = outsideListener('keyup', codeGetter)
+let onKeypressOutside = outsideListener('keypress', codeGetter)
+let onKeyOutside = (key, type, f = codeGetter) => update =>
+  [
+    'onOutside',
+    'keydown',
+    Append.val(ev => {
+      if (ev.code !== key) return
+      ev.preventDefault()
+      update(val(type, f(ev)))
+    }),
+  ]
+
+// (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
+let documentListener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
+  ['onDocument', eventName, Append.val(ev => update(val(proto, f(ev))))]
+let onClickDocument = documentListener('click', id)
+let onMouseDownDocument = documentListener('mousedown', id)
+let onMouseMoveDocument = documentListener('mousemove', id)
+let onMouseUpDocument = documentListener('mouseup', id)
+let onTouchStartDocument = documentListener('touchstart', id)
+let onTouchMoveDocument = documentListener('touchmove', id)
+let onTouchEndDocument = documentListener('touchend', id)
+let onKeydownDocument = documentListener('keydown', codeGetter)
+let onKeyupDocument = documentListener('keyup', codeGetter)
+let onKeypressDocument = documentListener('keypress', codeGetter)
+let onKeyDocument = (key, type, f = codeGetter) => update =>
+  [
+    'onDocument',
+    'keydown',
+    Append.val(ev => {
+      if (ev.code !== key) return
+      ev.preventDefault()
+      update(val(type, f(ev)))
+    }),
+  ]
+
+let prevent = event => (event.preventDefault(), event)
+let stopPropagation = event => (event.stopPropagation(), event)
 
 export {
   a,
@@ -148,6 +208,7 @@ export {
   onPost,
 
   className,
+  style,
 
   prop,
   value,
@@ -159,8 +220,40 @@ export {
   onClick,
   onInput,
   onBlur,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
   onKeyup,
   onKeydown,
   onKeypress,
   onKey,
+
+  onClickOutside,
+  onMouseDownOutside,
+  onMouseMoveOutside,
+  onMouseUpOutside,
+  onTouchStartOutside,
+  onTouchMoveOutside,
+  onTouchEndOutside,
+  onKeydownOutside,
+  onKeyupOutside,
+  onKeypressOutside,
+  onKeyOutside,
+
+  onClickDocument,
+  onMouseDownDocument,
+  onMouseMoveDocument,
+  onMouseUpDocument,
+  onTouchStartDocument,
+  onTouchMoveDocument,
+  onTouchEndDocument,
+  onKeydownDocument,
+  onKeyupDocument,
+  onKeypressDocument,
+  onKeyDocument,
+
+  prevent,
 }

@@ -1,12 +1,7 @@
-import { classModule, eventListenersModule, init, propsModule } from 'snabbdom'
+import { classModule, styleModule, eventListenersModule, init as initPatch, propsModule } from 'snabbdom'
 import { match, when } from './patternMatching'
+import { documentEventListeners, outsideEventListeners } from './specialEventListeners'
 import { Any, is, Type, val } from './types'
-
-let patch = init([
-  classModule,
-  propsModule,
-  eventListenersModule,
-])
 
 let Msg = Type.of()
 let Task = Type.of({
@@ -31,8 +26,18 @@ let scopedItem = (proto, view) => item => update =>
 let isMsg = (proto, x) => x != null && (is(proto, x) || is(proto, x.value) || isMsg(proto, x.value?.msg))
 let inMsgs = (protoList, x) => protoList.some(t => isMsg(t, x))
 
-// (HTMLElement, (-> Model), Update, View) -> Void
-let render = (rootNode, init, update, view) => {
+// (HTMLElement, (-> Model), Update, View, SnabbdomModule[]) -> Void
+let render = (rootNode, init, update, view, snabbdomModules = []) => {
+  let patch = initPatch([
+    classModule,
+    propsModule,
+    styleModule,
+    eventListenersModule,
+    outsideEventListeners,
+    documentEventListeners,
+    ...snabbdomModules,
+  ])
+
   let oldVnode = rootNode
   let model = init()
   let renderView = () => {

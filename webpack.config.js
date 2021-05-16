@@ -7,6 +7,7 @@ let examples = [
   'quick-start',
   'composing-modules',
   'async-tasks',
+  'special-events',
 ]
 
 module.exports = {
