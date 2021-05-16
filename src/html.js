@@ -60,6 +60,7 @@ let type = partial(prop, 'type')
 let contentEditable = partial(prop, 'contentEditable')
 let tabIndex = partial(prop, 'tabIndex')
 let disabled = partial(prop, 'disabled')
+let placeholder = partial(prop, 'placeholder')
 
 // Styles
 let style = styles => ['style', styles]
@@ -216,6 +217,7 @@ export {
   contentEditable,
   tabIndex,
   disabled,
+  placeholder,
 
   onClick,
   onInput,
