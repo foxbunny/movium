@@ -40,12 +40,17 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
 
   let oldVnode = rootNode
   let model = init()
+  let rendering = false
   let renderView = () => {
+    rendering = true
     let newVnode = view(model)(updater)
     patch(oldVnode, newVnode)
     oldVnode = newVnode
+    rendering = false
   }
   let updater = msg => {
+    if (rendering)
+      throw Error('Message received during rendering. Are you updating from a hook without using nextFrame()?')
     match(update(msg, model),
       when(Task, t => {
         model = t.model

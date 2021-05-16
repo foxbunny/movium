@@ -8,6 +8,7 @@ let examples = [
   'composing-modules',
   'async-tasks',
   'special-events',
+  'initial-load',
 ]
 
 module.exports = {

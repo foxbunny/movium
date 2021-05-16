@@ -84,6 +84,12 @@ let onDestroy = partial(hook, 'destroy')
 let onRemove = partial(hook, 'remove')
 let onPost = partial(hook, 'post')
 
+let nextFrame = f => (update, ...args) =>
+  requestAnimationFrame(() => typeof f === 'function'
+    ? f(update, ...args)
+    : update(val(f, args))
+  )
+
 // Event listeners
 
 // Event -> String
@@ -207,6 +213,7 @@ export {
   onRemove,
   onDestroy,
   onPost,
+  nextFrame,
 
   className,
   style,
