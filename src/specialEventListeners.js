@@ -7,8 +7,8 @@ let createListenerUpdater = (handleEvent, dataKey, listenerKey) => (oldVnode, ne
   let oldHandlers = oldVnode.data[dataKey]
   let oldListener = oldVnode[listenerKey]
   let oldElm = oldVnode.elm
-  let newHandlers = newVnode.data[dataKey]
-  let newElm = newVnode.elm
+  let newHandlers = newVnode?.data[dataKey]
+  let newElm = newVnode?.elm
 
   // New handlers are the same as old handlers
   if (oldHandlers === newHandlers) return

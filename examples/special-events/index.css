@@ -25,9 +25,15 @@ body {
   justify-content: center;
   align-items: center;
   background-color: white;
+  flex-direction: column;
 }
 
 .message {
   text-align: center;
   font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+button {
+  font: inherit;
 }
