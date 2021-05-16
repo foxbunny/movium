@@ -1,6 +1,6 @@
 import { h } from 'snabbdom'
 import { Append, assignPath, id, partial } from './tools'
-import { valueObj } from './types'
+import { val } from './types'
 
 let el = name => (props = null, ...children) => update => {
   let propsObj = {}
@@ -48,6 +48,8 @@ let th = el('th')
 let thead = el('thead')
 let ul = el('ul')
 
+let key = k => ['key', k]
+
 // Classes
 let className = (c, use = true) => ['class', c, use]
 
@@ -60,8 +62,15 @@ let tabIndex = partial(prop, 'tabIndex')
 let disabled = partial(prop, 'disabled')
 
 // Hooks
-let hook = (hookName, f) => ['hook', hookName, f]
+let hook = (hookName, f) => update => [
+  'hook',
+  hookName,
+  typeof f === 'function'
+    ? (...args) => f(update, ...args)
+    : (...args) => update(val(f, args))
+]
 let onPre = partial(hook, 'pre')
+let onInit = partial(hook, 'init')
 let onCreate = partial(hook, 'create')
 let onInsert = partial(hook, 'insert')
 let onPrepatch = partial(hook, 'prepatch')
@@ -77,8 +86,8 @@ let onPost = partial(hook, 'post')
 let codeGetter = ev => ev.code
 
 // (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
-let listener = (eventName, valueGetter) => (type, f = valueGetter) => update =>
-  ['on', eventName, valueObj(Append, ev => update(valueObj(type, f(ev))))]
+let listener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
+  ['on', eventName, Append.val(ev => update(val(proto, f(ev))))]
 let onClick = listener('click', id)
 let onInput = listener('input', ev => typeof ev.target.value === 'string' ? ev.target.value : ev.target.innerText)
 let onBlur = listener('blur', id)
@@ -89,10 +98,10 @@ let onKey = (key, type, f = codeGetter) => update =>
   [
     'on',
     'keydown',
-    valueObj(Append, ev => {
+    Append.val(ev => {
       if (ev.code !== key) return
       ev.preventDefault()
-      update(valueObj(type, f(ev)))
+      update(val(type, f(ev)))
     }),
   ]
 
@@ -124,8 +133,11 @@ export {
   option,
   label,
 
+  key,
+
   hook,
   onPre,
+  onInit,
   onCreate,
   onInsert,
   onPrepatch,

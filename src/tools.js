@@ -1,5 +1,5 @@
 import { match, when } from './patternMatching'
-import { Any, subtype, valueObj, Void } from './types'
+import { Any, Type, Void } from './types'
 
 let id = x => x
 let has = (k, o) => Object.prototype.hasOwnProperty.call(o, k)
@@ -11,7 +11,8 @@ let tap = (f, x) => {
   return x
 }
 
-let Append = subtype()
+let Append = Type.of()
+let Call = Type.of()
 
 // ([...String, T], Object) -> Object
 let assignPath = (path, o) => {
@@ -22,14 +23,14 @@ let assignPath = (path, o) => {
     p = p[k]
   }
   let [k, v] = path
-  p[k] = match(
-    v,
+  p[k] = match(v,
     when(Append, v => match(
       p[k],
       when(Array, () => [...p[k], v]),
       when(Void, () => v),
       when(Any, () => [p[k], v]),
     )),
+    when(Call, f => f(p[k])),
     when(Any, () => v),
   )
   return o
@@ -41,15 +42,13 @@ let partial = (f, ...args) => f.bind(undefined, ...args)
 // T -> T
 let log = x => console.log(x) ||  x
 
-let appendToProp = (prop, val, o) => assignPath([prop, valueObj(Append, val)], o)
-
 export {
   Append,
+  Call,
   has,
   valueOf,
   id,
   assignPath,
-  appendToProp,
   partial,
   log,
   tap,

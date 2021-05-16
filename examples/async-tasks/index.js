@@ -1,4 +1,4 @@
-import { button, div, li, match, onClick, p, render, task, ul, when } from 'movium'
+import { button, div, li, match, Msg, onClick, p, render, Task, ul, when } from 'movium'
 
 let init = () => ({
   loading: false,
@@ -6,8 +6,8 @@ let init = () => ({
   data: [],
 })
 
-let Load = {}
-let Clear = {}
+let Load = Msg.of()
+let Clear = Msg.of()
 
 let getData = () => fetch('/data.json')
   .then(res => {
@@ -18,7 +18,7 @@ let getData = () => fetch('/data.json')
   .catch(error => ({ data: [], error }))
 
 let update = (msg, model) => match(msg,
-  when(Load, () => task(
+  when(Load, () => Task.from(
     { ...model, loading: true, data: [] },
     getData().then(({ data, error }) => ({ ...model, loading: false, data, error })),
   )),

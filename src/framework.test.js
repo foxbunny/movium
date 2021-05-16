@@ -1,9 +1,8 @@
 import { Msg, scope } from './framework'
-import { subtype, valueObj } from './types'
 
 describe('scope', () => {
   test('create a scoped view', () => {
-    let MyMsg = subtype(Msg)
+    let MyMsg = Msg.of()
     let update = () => {}
     let f = x => () => `<html>${x}</html>`
     let g = scope(MyMsg, f('hello'))
@@ -11,7 +10,7 @@ describe('scope', () => {
   })
 
   test('wrap event in a message', () => {
-    let MyMsg = subtype(Msg)
+    let MyMsg = Msg.of()
     let update = jest.fn()
     let f = x => update => {
       update('hello from view')
@@ -26,13 +25,13 @@ describe('scope', () => {
   })
 
   test('process the message before wrapping', () => {
-    let MyMsg = subtype(Msg)
+    let MyMsg = Msg.of()
     let update = jest.fn()
     let f = x => update => {
       update('hello from view')
       return `<html>${x}</html>`
     }
-    let g = scope(m => valueObj(MyMsg, { myMsg: m }), f('hello'))
+    let g = scope(m => MyMsg.val({ myMsg: m }), f('hello'))
     let r = g(update)
     let msg = update.mock.calls[0][0]
     expect(r).toBe('<html>hello</html>')

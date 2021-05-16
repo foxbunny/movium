@@ -24,7 +24,7 @@ Let's take a look at a very simple example of an application that fetches
 some data.
 
 ```javascript
-import { button, div, li, match, onClick, p, render, task, ul, when } from 'movium'
+import { button, div, li, match, Msg, onClick, p, render, Task, ul, when } from 'movium'
 
 let init = () => ({
   loading: false,
@@ -32,8 +32,8 @@ let init = () => ({
   data: [],
 })
 
-let Load = {}
-let Clear = {}
+let Load = Msg.of()
+let Clear = Msg.of()
 
 let getData = () => fetch('/data.json')
   .then(res => {
@@ -44,7 +44,7 @@ let getData = () => fetch('/data.json')
   .catch(error => ({ data: [], error }))
 
 let update = (msg, model) => match(msg,
-  when(Load, () => task(
+  when(Load, () => Task.from(
     { ...model, loading: true, data: [] },
     getData().then(({ data, error }) => ({ ...model, loading: false, data, error })),
   )),
@@ -95,7 +95,7 @@ The update function looks like this:
 
 ```javascript
 let update = (msg, model) => match(msg,
-  when(Load, () => task(
+  when(Load, () => Task.from(
     { ...model, loading: true, data: [] },
     getData().then(({ data, error }) => ({ ...model, loading: false, data, error }),
   )),
@@ -103,13 +103,13 @@ let update = (msg, model) => match(msg,
 )
 ```
 
-The `task()` function is the star of the show. It takes a value as its first 
-argument that represents the immediate update of the model (usually we use 
-this to set some state before the task begins, such as setting the `loading` 
-flag in our case). As its second argument, it takes a promise that resolves 
-to the updated model once the task completes (e.g., clears the `loading` 
-flag, and sets the data and/or error properties). Keep in mind that the 
-promise must never reject. In this example, we capture the error and set it 
-to the `error` property.
+The `Task.from()` method is the star of the show. It takes a model, and a 
+promise that resolves to a model and returns a `Task` object. The model is 
+used immediately to update the view, and we usually use this to set the 
+state before the task executes (e.g., `loading` flag in this example). The 
+promise should resolve to the state of the model after the async task is 
+completed. Note that this promise must not reject (if it does, the application 
+will crash). In our case, we capture any errors using the `catch()` method, 
+and return errors as an `error` property.
 
 We won't go over the view in detail as it does not do anything special.

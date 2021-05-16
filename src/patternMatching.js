@@ -1,9 +1,8 @@
 import { valueOf } from './tools'
-import { valueObj, is, subtype } from './types'
+import { is, Type } from './types'
 
-let MatchResult = subtype()
-let Match = subtype(MatchResult)
-let Miss = subtype(MatchResult)
+let Match = Type.of()
+let Miss = Type.of()
 
 let match = (x, ...cases) => {
   for (let c of cases) {
@@ -14,8 +13,8 @@ let match = (x, ...cases) => {
 }
 
 let when = (type, f) => x => is(type, x)
-  ? valueObj(Match, f(valueOf(x)))
-  : valueObj(Miss)
+  ? Match.val(f(valueOf(x)))
+  : Miss.val()
 
 export {
   match,

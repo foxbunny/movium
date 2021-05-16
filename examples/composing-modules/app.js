@@ -1,4 +1,4 @@
-import { button, className, div, li, match, onClick, p, scope, ul, valueObj, when } from 'movium'
+import { button, className, div, li, match, Msg, onClick, p, scope, ul, when } from 'movium'
 import './app.css'
 import * as counter from './counter'
 
@@ -9,8 +9,8 @@ let init = (n = 0) => ({
   initialValue: n,
 })
 
-let InCounter = {}
-let Reset = {}
+let InCounter = Msg.of()
+let Reset = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(Reset, () => init(model.initialValue)),
@@ -29,7 +29,7 @@ let num = model =>
 let scopedCounter = (model, key) => (
   li([className('counter-digit')],
     scope(
-      msg => valueObj(InCounter, { key, msg }),
+      msg => InCounter.val({ key, msg }),
       counter.view(model),
     ),
   )

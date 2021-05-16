@@ -4,7 +4,7 @@ Here's a hello world example. A working version of the code discussed here can
 be found in the `examples` folder.
 
 ```javascript
-import { div, input, match, onInput, p, render, value, when } from 'movium'
+import { div, input, match, Msg, onInput, p, render, value, when } from 'movium'
 
 // --( Model )------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ let init = () => ({
 
 // --( Update )-----------------------------------------------------------------
 
-let SetName = {}
+let SetName = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(SetName, name => ({ ...model, name })),
@@ -76,12 +76,16 @@ information stored in it.
 Next we declare messages we would like to use in our update function:
 
 ```javascript
-let SetName = {}
+let SetName = Msg.of()
 ```
 
-A message is a plain empty object. As with the model, Movium does not care what
-object it is, but it has to be an object, as it is used as a prototype for the
-actual messages.
+A message can be a plain empty object. As with the model, Movium does not care
+what object it is, but it has to be an object, as it is used as a prototype for
+the actual messages. In this example, though, we use the `Msg.of()` factory 
+function to create an object that has `Msg` as the prototype. This gives us 
+the ability to call `SetName.val(x)` to create a value object that 
+represents the message, which can be handy when we are working with nested 
+modules.
 
 The update function takes two arguments, the message emitted by the view, and a
 model, and returns a model.
@@ -93,7 +97,7 @@ let update = (msg, model) => match(msg,
 ```
 
 The `match()` function is a Movium-provided utility for performing pattern
-mathcing. It takes a value as its... gulp... first argument (loud gasps from the
+matching. It takes a value as its... gulp... first argument (loud gasps from the
 point-free crowd), and any number of matcher functions, and returns the result
 of the first matcher that successfully matches the value. The `when()`
 function is another utility that creates matches based on its arguments. It
@@ -170,5 +174,5 @@ functions.
 
 ## Next step
 
-For a slightly more involved example, see 
+For a slightly more involved example, see
 [Composing modules](./composing-modules.md).

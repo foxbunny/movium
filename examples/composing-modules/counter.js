@@ -1,12 +1,11 @@
-import { button, className, disabled, div, match, onClick, span, when } from 'movium'
+import { button, className, disabled, div, match, Msg, onClick, span, when } from 'movium'
 
 let init = (n = 0) => n
 
-let Inc = {}
-let Dec = {}
+let Inc = Msg.of()
+let Dec = Msg.of()
 
-let update = (msg, model) => match(
-  msg,
+let update = (msg, model) => match(msg,
   when(Inc, () => Math.min(9, model + 1)),
   when(Dec, () => Math.max(0, model - 1)),
 )

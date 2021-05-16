@@ -1,7 +1,6 @@
-import { init, classModule, propsModule, eventListenersModule } from 'snabbdom'
+import { classModule, eventListenersModule, init, propsModule } from 'snabbdom'
 import { match, when } from './patternMatching'
-import { log } from './tools'
-import { valueObj, subtype, is, Type, Any } from './types'
+import { Any, is, Type, val } from './types'
 
 let patch = init([
   classModule,
@@ -9,37 +8,28 @@ let patch = init([
   eventListenersModule,
 ])
 
-let Msg = subtype()
-let Model = subtype()
-let Task = subtype()
+let Msg = Type.of()
+let Task = Type.of({
+  from(model, promise) {
+    return Task.of({ model, promise })
+  }
+})
 
 // Update :: (Msg, Model) -> (Model | Task)
 // Updater :: Msg -> HTMLElement
 // View :: Updater -> HTMLElement
 
-// ((Type | (Type -> Type)), View) -> View
-let scope = (t, view) => update =>
-  view(msg => update(typeof t === 'function' ? t(msg) : valueObj(t, msg)))
+// ((T | (T -> T)), View) -> View
+let scope = (proto, view) => update =>
+  view(msg => update(typeof proto === 'function' ? proto(msg) : val(proto, msg)))
 
 // (Type, View) -> * -> View
-let scopedItem = (t, view) => item => update =>
-  view(item)(msg => update(valueObj(t, { item, msg })))
+let scopedItem = (proto, view) => item => update =>
+  view(item)(msg => update(val(proto, { item, msg })))
 
 // (Msg, Msg) -> True
-let isMsg = (t, x) => x != null && (is(t, x) || is(t, x.value) || isMsg(t, x.value?.msg))
-let inMsgs = (ts, x) => ts.some(t => isMsg(t, x))
-
-// (T, Promise<T>) -> Task
-let task = (model, promise) => subtype(Task, { model, promise })
-
-// (T | Task) -> (Model | Task)
-let taskOrModel = x => match(x,
-  when(Task, task => subtype(Task, {
-    model: subtype(Model, task.model),
-    promise: task.promise.then(model => subtype(Model, model)),
-  })),
-  when(Any, model => subtype(Model, model))
-)
+let isMsg = (proto, x) => x != null && (is(proto, x) || is(proto, x.value) || isMsg(proto, x.value?.msg))
+let inMsgs = (protoList, x) => protoList.some(t => isMsg(t, x))
 
 // (HTMLElement, (-> Model), Update, View) -> Void
 let render = (rootNode, init, update, view) => {
@@ -51,7 +41,7 @@ let render = (rootNode, init, update, view) => {
     oldVnode = newVnode
   }
   let updater = msg => {
-    match(log(update(msg, model)),
+    match(update(msg, model),
       when(Task, t => {
         model = t.model
         renderView()
@@ -72,13 +62,10 @@ let render = (rootNode, init, update, view) => {
 
 export {
   Msg,
-  Model,
   Task,
   scope,
   scopedItem,
   isMsg,
   inMsgs,
-  task,
-  taskOrModel,
   render,
 }

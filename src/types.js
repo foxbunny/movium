@@ -1,36 +1,41 @@
-let Type = Object.freeze({})
-let subtype = (proto = Type, props) => Object.create(proto, props && Object.getOwnPropertyDescriptors(props))
-let valueObj = (proto, value) =>
-  Object.create(proto, {
-    value: { value, writable: false },
-  })
-let Any = subtype()
-let Void = subtype()
-let Null = subtype()
-let Undefined = subtype()
-let Iterable = subtype()
-let IterableObject = subtype()
+let Type = Object.freeze({
+  of (x) {
+    return Object.create(this, x != null ? Object.getOwnPropertyDescriptors(x) : undefined)
+  },
+  val (x) {
+    return val(this, x)
+  },
+})
 
+let Any = Type.of()
+let Void = Type.of()
+let Null = Type.of()
+let Undefined = Type.of()
+let Iterable = Type.of()
+let IterableObject = Type.of()
 
 let TypeInferenceMappings = new Map([
   [Void, x => x == null],
-  [Undefined, x => x === void(0)],
+  [Undefined, x => x === void (0)],
   [Null, x => x === null],
   [Iterable, x => x != null && typeof x[Symbol.iterator] === 'function'],
   [IterableObject, x => x != null && typeof x[Symbol.iterator] === 'function' && typeof x === 'object'],
   [Any, () => true],
 ])
 
-let is = (t, x) => {
-  let test = TypeInferenceMappings.get(t)
+let is = (type, x) => {
+  if (type === x) return true
+  let test = TypeInferenceMappings.get(type)
   if (test == null) {
     if (x == null) return false
-    return t.isPrototypeOf(x) || Object.getPrototypeOf(x) === t || x.constructor === t
+    return type.isPrototypeOf(x) || Object.getPrototypeOf(x) === type || x.constructor === type
   }
   return test(x)
 }
-is.define = (t, f) => TypeInferenceMappings.set(t, f)
-is.remove = t => TypeInferenceMappings.delete(t)
+is.define = (type, f) => TypeInferenceMappings.set(type, f)
+is.remove = type => TypeInferenceMappings.delete(type)
+
+let val = (proto, value) => Object.create(proto, { value: { value, writable: false }})
 
 export {
   Type,
@@ -40,7 +45,6 @@ export {
   Null,
   Iterable,
   IterableObject,
-  subtype,
-  valueObj,
   is,
+  val,
 }

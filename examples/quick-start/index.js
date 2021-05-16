@@ -1,4 +1,4 @@
-import { div, input, match, onInput, p, render, value, when } from 'movium'
+import { div, input, match, Msg, onInput, p, render, value, when } from 'movium'
 
 // --( Model )------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ let init = () => ({
 
 // --( Update )-----------------------------------------------------------------
 
-let SetName = {}
+let SetName = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(SetName, name => ({ ...model, name })),

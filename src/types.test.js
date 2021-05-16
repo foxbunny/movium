@@ -1,14 +1,43 @@
 import { Msg } from './framework'
-import { is, Iterable, valueObj, Null, Undefined, Void, Any, IterableObject, subtype } from './types'
+import { Any, is, Iterable, IterableObject, Null, Type, Undefined, Void } from './types'
+
+describe('Type', () => {
+  test('create a type using of()', () => {
+    let x = Type.of()
+    expect(Type.isPrototypeOf(x)).toBe(true)
+    expect(Object.getPrototypeOf(x)).toBe(Type)
+  })
+
+  test('create a type using of() with additional pros', () => {
+    let x = Type.of({ foo: 'bar' })
+    expect(x.foo).toBe('bar')
+    expect(Object.prototype.hasOwnProperty.call(x, 'foo')).toBe(true)
+    expect(Type.isPrototypeOf(x)).toBe(true)
+    expect(Object.getPrototypeOf(x)).toBe(Type)
+  })
+
+  test('create a value object using val()', () => {
+    let x = Type.val(1)
+    expect(x.value).toBe(1)
+    expect(Type.isPrototypeOf(x)).toBe(true)
+    expect(Object.getPrototypeOf(x)).toBe(Type)
+  })
+})
 
 describe('is', () => {
+  test('equality to self', () => {
+    expect(is(Type, Type)).toBe(true)
+    expect(is(Any, Any)).toBe(true)
+    expect(is(1, 1)).toBe(true)
+  })
+
   test.each([
     ['str', String],
     [[1, 2, 3], Array],
     [3, Number],
     [{}, Object],
     [new Date(), Date],
-    [valueObj(Msg, 'test'), Msg],
+    [Msg.val('test'), Msg],
     [[1, 2, 3], Iterable],
     ['string', Iterable],
     [new Set(), Iterable],
@@ -25,7 +54,7 @@ describe('is', () => {
     [3, Any],
     [{}, Any],
     [new Date(), Any],
-    [valueObj(Msg, 'test'), Any],
+    [Msg.val('test'), Any],
     [new Set(), Any],
     [null, Any],
     [undefined, Any],
@@ -37,7 +66,7 @@ describe('is', () => {
     }
   )
 
-  let Fooable = subtype()
+  let Fooable = Type.of()
 
   test('define custom types', () => {
     is.define(Fooable, x => x != null && typeof x.foo === 'function')
@@ -61,9 +90,9 @@ describe('is', () => {
   })
 
   test('test against any member of the inheritance chain', () => {
-    let Foo = subtype()
-    let Bar = subtype(Foo)
-    let baz = subtype(Bar, { test: 'me' })
+    let Foo = Type.of()
+    let Bar = Foo.of()
+    let baz = Bar.of({ test: 'me' })
 
     expect(is(Bar, baz)).toBe(true)
     expect(is(Foo, baz)).toBe(true)
