@@ -2,18 +2,18 @@ import { h } from 'snabbdom'
 import { Append, assignPath, id, partial } from './tools'
 import { val } from './types'
 
-let el = name => (props = null, ...children) => update => {
+let el = name => (props = null, ...children) => updater => {
   let propsObj = {}
   let childList = []
 
   if (props) for (let p of props) {
     if (p == null) continue
-    if (typeof p === 'function') p = p(update)
-    assignPath(p, propsObj)
+    if (typeof p === 'function') p = p(updater)
+    propsObj = assignPath(p, propsObj)
   }
 
   for (let c of children.flat()) {
-    if (typeof c === 'function') c = c(update)
+    if (typeof c === 'function') c = c(updater)
     childList.push(c)
   }
 
