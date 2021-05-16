@@ -14,13 +14,23 @@ let tap = (f, x) => {
 let Append = Type.of()
 let Call = Type.of()
 
-// ([...String, T], Object) -> Object
+let copy = x => match(x,
+  when(Object, x => ({ ...x })),
+  when(Array, x => Array.from(x)),
+  when(Set, x => new Set(x)),
+  when(Map, x => new Map(x)),
+  when(Date, x => new Date(x)),
+  when(Any, id),
+)
+
+// ([...String, T], U) -> U
 let assignPath = (path, o) => {
+  o = copy(o)
   let p = o
   while (path.length > 2) {
     let k = path.shift()
-    if (!has(k, p)) p[k] = {}
-    p = p[k]
+    let v = has(k, p) ? copy(p[k]) : {}
+    p = p[k] = v
   }
   let [k, v] = path
   p[k] = match(v,
@@ -48,6 +58,7 @@ export {
   has,
   valueOf,
   id,
+  copy,
   assignPath,
   partial,
   log,
