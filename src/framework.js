@@ -51,8 +51,10 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
         // sync (e.g., a value wrapped in a `Promise.resolve()`).
         requestAnimationFrame(() =>
           t.work
-            .then(x => updater(val(t.msg, x)))
-            .catch(err => updater(val, t.msg, err)),
+            .then(
+              x => updater(val(t.msg, x)),
+              err => updater(val, t.msg, err)
+            )
         )
         return t.model
       }),
