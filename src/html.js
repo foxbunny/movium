@@ -1,5 +1,5 @@
 import { h } from 'snabbdom'
-import { Append, assignPath, id, partial } from './tools'
+import { Append, assignPath, Call, id, partial } from './tools'
 import { is, val } from './types'
 
 let el = name => (props = null, ...children) => updater => {
@@ -12,7 +12,7 @@ let el = name => (props = null, ...children) => updater => {
     if (is(Array, p)) propsObj = assignPath(p, propsObj)
   }
 
-  for (let c of children.flat()) {
+  for (let c of children.flat(3)) {
     if (typeof c === 'function') c = c(updater)
     childList.push(c)
   }
@@ -51,7 +51,9 @@ let ul = el('ul')
 let key = k => ['key', k]
 
 // Classes
-let className = (c, use = true) => ['class', c, use]
+let className = (c, use = true) => ['class', Call.val(
+  (cls = {}) => c.split(' ').reduce((o, c) => assignPath([c, use], o), cls)
+)]
 
 // Properties
 let prop = (name, val) => ['props', name, val]
