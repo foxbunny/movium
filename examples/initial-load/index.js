@@ -1,12 +1,6 @@
-import { div, li, match, Msg, nextFrame, onInsert, onUpdate, p, render, Task, ul, when } from 'movium'
+import { div, GET, HttpError, HttpResult, jsonResponse, li, match, Msg, render, Task, Type, ul, when } from 'movium'
 
-let init = () => ({
-  loading: true,
-  error: null,
-  data: [],
-})
-
-let Load = Msg.of()
+// MODEL
 
 let getData = () => fetch('/data.json')
   .then(res => {
@@ -16,28 +10,36 @@ let getData = () => fetch('/data.json')
   .then(content => ({ data: content.data, error: null }))
   .catch(error => ({ data: [], error }))
 
+let Loading = Type.of()
+let Loaded = Type.of()
+let Error = Type.of()
+
+let init = () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), Ready)
+
+// UPDATE
+
+let Ready = Msg.of()
+
 let update = (msg, model) => match(msg,
-  when(Load, () => model.loading
-    ? Task.from(
-      { ...model, loading: true, data: [] },
-      getData().then(({ data, error }) => ({ ...model, loading: false, data, error })),
-    )
-    : model,
-  ),
+  when(Ready, result => match(result,
+    when(HttpResult, data => Loaded.val(data.data)),
+    when(HttpError, () => Error.val('Oh, noes!'))
+  )),
 )
 
+// VIEW
+
 let view = model => (
-  // We use `nextFrame()` so that the render process can finish before we
-  // start the next update. Otherwise, we end up with an exception.
-  div([onUpdate(nextFrame(Load))],
-    model.error
-      ? p([], 'Error: ', model.error.message)
-      : null,
-    model.loading
-      ? p([], 'Loading...')
-      : ul([], model.data.map(d => li([], d.name))),
+  div([],
+    match(model,
+      when(Loading, () => 'Loading...'),
+      when(Loaded, data => ul([], data.map(d => li([], d.name)))),
+      when(Error, () => 'Error while loading data'),
+    ),
   )
 )
+
+// RENDER
 
 let root = document.createElement('div')
 document.body.appendChild(root)

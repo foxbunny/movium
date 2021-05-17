@@ -24,92 +24,127 @@ Let's take a look at a very simple example of an application that fetches
 some data.
 
 ```javascript
-import { button, div, li, match, Msg, onClick, p, render, Task, ul, when } from 'movium'
+import {
+  button,
+  div,
+  GET,
+  HttpError,
+  HttpResult,
+  jsonResponse,
+  li,
+  match,
+  Msg,
+  onClick,
+  p,
+  render,
+  Task, Type,
+  ul,
+  when,
+} from 'movium'
 
-let init = () => ({
-  loading: false,
-  error: null,
-  data: [],
-})
+// MODEL
+
+let Loading = Type.of()
+let Error = Type.of()
+let Loaded = Type.of()
+
+let init = () => Loaded.val([])
+
+// UPDATE
 
 let Load = Msg.of()
+let ReceiveData = Msg.of()
 let Clear = Msg.of()
 
-let getData = () => fetch('/data.json')
-  .then(res => {
-    if (!res.ok) throw Error('Could not fetch data')
-    return res.json()
-  })
-  .then(content => ({ data: content.data, error: null }))
-  .catch(error => ({ data: [], error }))
-
 let update = (msg, model) => match(msg,
-  when(Load, () => Task.from(
-    { ...model, loading: true, data: [] },
-    getData().then(({ data, error }) => ({ ...model, loading: false, data, error })),
+  when(Load, () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), ReceiveData)),
+  when(ReceiveData, result => match(result,
+    when(HttpResult, data => Loaded.val(data.data)),
+    when(HttpError, error => Error.val(error)),
   )),
-  when(Clear, () => ({ ...model, loading: false, error: null, data: [] })),
+  when(Clear, () => init()),
 )
 
-let view = model => (
+// VIEW
+
+let view = model => console.log(model) || (
   div([],
     p([],
       button([onClick(Load)], 'Load data'),
       ' ',
       button([onClick(Clear)], 'Clear data'),
     ),
-    model.error
-      ? p([], 'Error: ', model.error.message)
-      : null,
-    model.loading
-      ? p([], 'Loading...')
-      : ul([], model.data.map(d => li([], d.name))),
+    match(model,
+      when(Loading, () => 'Loading...'),
+      when(Loaded, data => data.map(d => li([], d.name))),
+      when(Error, () => 'Error while loading data'),
+    ),
   )
 )
+
+// RENDER
 
 let root = document.createElement('div')
 document.body.appendChild(root)
 render(root, init, update, view)
 ```
 
-The model is initialized as usual:
+We use three types to differentiate between three states in which the 
+application can be in:
 
 ```javascript
-let init = () => ({
-  loading: false,
-  error: null,
-  data: [],
-})
+let Loading = Type.of()
+let Error = Type.of()
+let Loaded = Type.of()
 ```
 
-The `error` property will contain any errors encountered while the data is 
-being fetched. The `data` property is where the data will be stored once 
-fetched. The `loading` property is a flag that is `true` during the fetching 
-process.
+The initial state is `Loaded`:
 
-We have two messages that can be sent to the update function. The `Load` 
-message is the interesting one. The other, `Clear` is there to demonstrate 
-the difference between async and sync updates.
+```javascript
+let init = () => Loaded.val([])
+```
+
+We use the `Loaded` type to create a value object containing an empty array, 
+which represents our initial data.
+
+We also have three messages. The `Load` message is used instruct the 
+application to initiate a HTTP request to fetch the data. The `ReceiveData` 
+message will be used once the HTTP request is finished. The `Clear` message 
+is used to clear the data.
 
 The update function looks like this:
 
 ```javascript
 let update = (msg, model) => match(msg,
-  when(Load, () => Task.from(
-    { ...model, loading: true, data: [] },
-    getData().then(({ data, error }) => ({ ...model, loading: false, data, error }),
+  when(Load, () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), ReceiveData)),
+  when(ReceiveData, result => match(result,
+    when(HttpResult, data => Loaded.val(data.data)),
+    when(HttpError, error => Error.val(error)),
   )),
-  when(Clear, () => ({ ...model, loading: false, error: null, data: [] })
+  when(Clear, () => init()),
 )
 ```
 
-The `Task.from()` method is the star of the show. It takes a model, and a 
-promise that resolves to a model and returns a `Task` object. The model is 
-used immediately to update the view, and we usually use this to set the 
-state before the task executes (e.g., `loading` flag in this example). The 
-promise should resolve to the state of the model after the async task is 
-completed. Note that this promise must not reject (if it does, the application 
-will crash). In our case, we capture any errors using the `catch()` method, 
-and return errors as an `error` property.
+The first thing to discuss is the `Task` type. This type has a factory 
+function `from()` which is used to create new tasks. Tasks have three parts 
+which correspond to the arguments passed to `from()`:
 
-We won't go over the view in detail as it does not do anything special.
+- the state of the model before the task is carried out
+- a `Promise` that resolves to the result of the task
+- a message that will be sent once the task is finished
+
+In this example, the state of the model before the task is a `Loading` 
+object with no value. The task is created using Movium's HTTP functions 
+(although you can use `fetch()` or `axios` or anything that returns a Promise).
+The `GET` function returns a `HttpRequest` object, which has an `expect()` 
+method. We call the `expect()` with the Movium-provided `jsonResponse` 
+expecter, which starts the request and attempts to parse the response data 
+as JSON. Lastly, we specify that we want to have `ReceiveData` sent to the 
+update function once the task is completed.
+
+The update function receives the `ReceiveData` message which has the result 
+of the HTTP request in it. Results can be of either the `HttpResult` or 
+the `HttpError` type. We pattern-match on the result to return an 
+appropriate type of the model.
+
+The view simply pattern-matches on the type of hte 

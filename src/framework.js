@@ -1,14 +1,16 @@
-import { classModule, styleModule, eventListenersModule, init as initPatch, propsModule } from 'snabbdom'
+import { classModule, eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
 import { match, when } from './patternMatching'
 import { documentEventListeners, outsideEventListeners } from './specialEventListeners'
+import { id } from './tools'
 import { Any, is, Type, val } from './types'
 
 let Msg = Type.of()
 let Task = Type.of({
-  from(model, promise) {
-    return Task.of({ model, promise })
-  }
+  from (model, work, msg) {
+    return Task.of({ model, work, msg })
+  },
 })
+let DoNothing = Type.of()
 
 // Update :: (Msg, Model) -> (Model | Task)
 // Updater :: Msg -> HTMLElement
@@ -43,29 +45,31 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   let rendering = false
   let renderView = () => {
     rendering = true
+    model = match(model,
+      when(Task, t => {
+        // use RAF to avoid a infinite recursion issue if task happens to be
+        // sync (e.g., a value wrapped in a `Promise.resolve()`).
+        requestAnimationFrame(() =>
+          t.work
+            .then(x => updater(val(t.msg, x)))
+            .catch(err => updater(val, t.msg, err)),
+        )
+        return t.model
+      }),
+      when(Any, () => model),
+    )
     let newVnode = view(model)(updater)
     patch(oldVnode, newVnode)
     oldVnode = newVnode
+
     rendering = false
   }
   let updater = msg => {
     if (rendering)
       throw Error('Message received during rendering. Are you updating from a hook without using nextFrame()?')
-    match(update(msg, model),
-      when(Task, t => {
-        model = t.model
-        renderView()
-
-        t.promise.then(x => {
-          model = x
-          renderView()
-        })
-      }),
-      when(Any, x => {
-        model = x
-        renderView()
-      })
-    )
+    if (is(DoNothing, msg)) return
+    model = update(msg, model)
+    renderView()
   }
   renderView()
 }
@@ -73,6 +77,7 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
 export {
   Msg,
   Task,
+  DoNothing,
   scope,
   scopedItem,
   isMsg,

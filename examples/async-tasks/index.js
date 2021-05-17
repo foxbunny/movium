@@ -1,45 +1,62 @@
-import { button, div, li, match, Msg, onClick, p, render, Task, ul, when } from 'movium'
+import {
+  button,
+  div,
+  GET,
+  HttpError,
+  HttpResult,
+  jsonResponse,
+  li,
+  match,
+  Msg,
+  onClick,
+  p,
+  render,
+  Task, Type,
+  ul,
+  when,
+} from 'movium'
 
-let init = () => ({
-  loading: false,
-  error: null,
-  data: [],
-})
+// MODEL
+
+let Loading = Type.of()
+let Error = Type.of()
+let Loaded = Type.of()
+
+let init = () => Loaded.val([])
+
+// UPDATE
 
 let Load = Msg.of()
+let ReceiveData = Msg.of()
 let Clear = Msg.of()
 
-let getData = () => fetch('/data.json')
-  .then(res => {
-    if (!res.ok) throw Error('Could not fetch data')
-    return res.json()
-  })
-  .then(content => ({ data: content.data, error: null }))
-  .catch(error => ({ data: [], error }))
-
 let update = (msg, model) => match(msg,
-  when(Load, () => Task.from(
-    { ...model, loading: true, data: [] },
-    getData().then(({ data, error }) => ({ ...model, loading: false, data, error })),
+  when(Load, () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), ReceiveData)),
+  when(ReceiveData, result => match(result,
+    when(HttpResult, data => Loaded.val(data.data)),
+    when(HttpError, error => Error.val(error)),
   )),
-  when(Clear, () => ({ ...model, loading: false, error: null, data: [] })),
+  when(Clear, () => init()),
 )
 
-let view = model => (
+// VIEW
+
+let view = model => console.log(model) || (
   div([],
     p([],
       button([onClick(Load)], 'Load data'),
       ' ',
       button([onClick(Clear)], 'Clear data'),
     ),
-    model.error
-      ? p([], 'Error: ', model.error.message)
-      : null,
-    model.loading
-      ? p([], 'Loading...')
-      : ul([], model.data.map(d => li([], d.name))),
+    match(model,
+      when(Loading, () => 'Loading...'),
+      when(Loaded, data => data.map(d => li([], d.name))),
+      when(Error, () => 'Error while loading data'),
+    ),
   )
 )
+
+// RENDER
 
 let root = document.createElement('div')
 document.body.appendChild(root)

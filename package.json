@@ -11,6 +11,13 @@
     "test": "jest",
     "examples:start": "webpack serve"
   },
+  "jest": {
+    "automock": false,
+    "resetMocks": false,
+    "setupFiles": [
+      "<rootDir>/src/__test__/setup.js"
+    ]
+  },
   "devDependencies": {
     "@babel/cli": "^7.13.16",
     "@babel/core": "^7.14.2",
@@ -20,6 +27,7 @@
     "css-loader": "^5.2.4",
     "html-webpack-plugin": "^5.3.1",
     "jest": "^26.6.3",
+    "jest-fetch-mock": "^3.0.3",
     "style-loader": "^2.0.0",
     "webpack": "^5.37.0",
     "webpack-cli": "^4.7.0",
