@@ -155,6 +155,8 @@ let href = partial(prop, 'href')
 let name = partial(prop, 'name')
 let htmlId = partial(prop, 'id')
 let htmlFor = partial(prop, 'htmlFor')
+let alt = partial(prop, 'alt')
+let htmlTitle = partial(prop, 'title')
 
 // Styles
 let style = styles => ['style', styles]
@@ -411,6 +413,8 @@ export {
   name,
   htmlId,
   htmlFor,
+  alt,
+  htmlTitle,
 
   onClick,
   onInput,
