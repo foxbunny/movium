@@ -23,26 +23,21 @@ let el = name => (props = null, ...children) => updater => {
 // Elements
 let a = el('a')
 let abbr = el('abbr')
-let acronym = el('acronym')
 let address = el('address')
-let applet = el('applet')
 let area = el('area')
 let article = el('article')
 let aside = el('aside')
 let audio = el('audio')
 let b = el('b')
 let base = el('base')
-let basefont = el('basefont')
 let bdi = el('bdi')
 let bdo = el('bdo')
-let big = el('big')
 let blockquote = el('blockquote')
 let body = el('body')
 let br = el('br')
 let button = el('button')
 let canvas = el('canvas')
 let caption = el('caption')
-let center = el('center')
 let cite = el('cite')
 let code = el('code')
 let col = el('col')
@@ -54,7 +49,6 @@ let del = el('del')
 let details = el('details')
 let dfn = el('dfn')
 let dialog = el('dialog')
-let dir = el('dir')
 let div = el('div')
 let dl = el('dl')
 let dt = el('dt')
@@ -66,8 +60,6 @@ let figure = el('figure')
 let font = el('font')
 let footer = el('footer')
 let form = el('form')
-let frame = el('frame')
-let frameset = el('frameset')
 let head = el('head')
 let header = el('header')
 let hgroup = el('hgroup')
@@ -98,8 +90,6 @@ let menuitem = el('menuitem')
 let meta = el('meta')
 let meter = el('meter')
 let nav = el('nav')
-let noframes = el('noframes')
-let noscript = el('noscript')
 let object = el('object')
 let ol = el('ol')
 let optgroup = el('optgroup')
@@ -122,7 +112,6 @@ let select = el('select')
 let small = el('small')
 let source = el('source')
 let span = el('span')
-let strike = el('strike')
 let strong = el('strong')
 let sub = el('sub')
 let summary = el('summary')
@@ -140,7 +129,6 @@ let time = el('time')
 let title = el('title')
 let tr = el('tr')
 let track = el('track')
-let tt = el('tt')
 let u = el('u')
 let ul = el('ul')
 let variable = el('var')
@@ -162,6 +150,11 @@ let contentEditable = partial(prop, 'contentEditable')
 let tabIndex = partial(prop, 'tabIndex')
 let disabled = partial(prop, 'disabled')
 let placeholder = partial(prop, 'placeholder')
+let src = partial(prop, 'src')
+let href = partial(prop, 'href')
+let name = partial(prop, 'name')
+let htmlId = partial(prop, 'id')
+let htmlFor = partial(prop, 'htmlFor')
 
 // Styles
 let style = styles => ['style', styles]
@@ -276,26 +269,21 @@ let stopPropagation = event => (event.stopPropagation(), event)
 export {
   a,
   abbr,
-  acronym,
   address,
-  applet,
   area,
   article,
   aside,
   audio,
   b,
   base,
-  basefont,
   bdi,
   bdo,
-  big,
   blockquote,
   body,
   br,
   button,
   canvas,
   caption,
-  center,
   cite,
   code,
   col,
@@ -307,7 +295,6 @@ export {
   details,
   dfn,
   dialog,
-  dir,
   div,
   dl,
   dt,
@@ -319,8 +306,6 @@ export {
   font,
   footer,
   form,
-  frame,
-  frameset,
   head,
   header,
   hgroup,
@@ -351,8 +336,6 @@ export {
   meta,
   meter,
   nav,
-  noframes,
-  noscript,
   object,
   ol,
   optgroup,
@@ -375,7 +358,6 @@ export {
   small,
   source,
   span,
-  strike,
   strong,
   sub,
   summary,
@@ -393,7 +375,6 @@ export {
   title,
   tr,
   track,
-  tt,
   u,
   ul,
   variable,
@@ -425,6 +406,11 @@ export {
   tabIndex,
   disabled,
   placeholder,
+  src,
+  href,
+  name,
+  htmlId,
+  htmlFor,
 
   onClick,
   onInput,
