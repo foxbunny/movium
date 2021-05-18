@@ -44,27 +44,29 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   let model = init()
   let rendering = false
   let renderView = () => {
-    rendering = true
-    model = match(model,
-      when(Task, t => {
-        // use RAF to avoid a infinite recursion issue if task happens to be
-        // sync (e.g., a value wrapped in a `Promise.resolve()`).
-        requestAnimationFrame(() =>
-          t.work
-            .then(
-              x => updater(val(t.msg, x)),
-              err => updater(val, t.msg, err)
-            )
-        )
-        return t.model
-      }),
-      when(Any, () => model),
-    )
-    let newVnode = view(model)(updater)
-    patch(oldVnode, newVnode)
-    oldVnode = newVnode
+    requestAnimationFrame(() => {
+      rendering = true
+      model = match(model,
+        when(Task, t => {
+          // use RAF to avoid a infinite recursion issue if task happens to be
+          // sync (e.g., a value wrapped in a `Promise.resolve()`).
+          requestAnimationFrame(() =>
+            t.work
+              .then(
+                x => updater(val(t.msg, x)),
+                err => updater(val, t.msg, err)
+              )
+          )
+          return t.model
+        }),
+        when(Any, () => model),
+      )
+      let newVnode = view(model)(updater)
+      patch(oldVnode, newVnode)
+      oldVnode = newVnode
 
-    rendering = false
+      rendering = false
+    })
   }
   let updater = msg => {
     if (rendering)
