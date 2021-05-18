@@ -22,31 +22,130 @@ let el = name => (props = null, ...children) => updater => {
 
 // Elements
 let a = el('a')
+let abbr = el('abbr')
+let acronym = el('acronym')
+let address = el('address')
+let applet = el('applet')
+let area = el('area')
+let article = el('article')
 let aside = el('aside')
+let audio = el('audio')
+let b = el('b')
+let base = el('base')
+let basefont = el('basefont')
+let bdi = el('bdi')
+let bdo = el('bdo')
+let big = el('big')
+let blockquote = el('blockquote')
+let body = el('body')
+let br = el('br')
 let button = el('button')
+let canvas = el('canvas')
+let caption = el('caption')
+let center = el('center')
+let cite = el('cite')
+let code = el('code')
+let col = el('col')
+let colgroup = el('colgroup')
+let data = el('data')
+let datalist = el('datalist')
+let dd = el('dd')
+let del = el('del')
+let details = el('details')
+let dfn = el('dfn')
+let dialog = el('dialog')
+let dir = el('dir')
 let div = el('div')
+let dl = el('dl')
+let dt = el('dt')
+let em = el('em')
+let embed = el('embed')
+let fieldset = el('fieldset')
+let figcaption = el('figcaption')
+let figure = el('figure')
+let font = el('font')
+let footer = el('footer')
+let form = el('form')
+let frame = el('frame')
+let frameset = el('frameset')
+let head = el('head')
+let header = el('header')
+let hgroup = el('hgroup')
 let h1 = el('h1')
 let h2 = el('h2')
 let h3 = el('h3')
 let h4 = el('h4')
 let h5 = el('h5')
 let h6 = el('h6')
+let hr = el('hr')
+let html = el('html')
+let i = el('i')
+let iframe = el('iframe')
+let img = el('img')
 let input = el('input')
+let ins = el('ins')
+let kbd = el('kbd')
+let keygen = el('keygen')
 let label = el('label')
+let legend = el('legend')
 let li = el('li')
+let link = el('link')
 let main = el('main')
+let map = el('map')
+let mark = el('mark')
+let menu = el('menu')
+let menuitem = el('menuitem')
+let meta = el('meta')
+let meter = el('meter')
+let nav = el('nav')
+let noframes = el('noframes')
+let noscript = el('noscript')
+let object = el('object')
+let ol = el('ol')
+let optgroup = el('optgroup')
 let option = el('option')
+let output = el('output')
 let p = el('p')
+let param = el('param')
+let picture = el('picture')
+let pre = el('pre')
+let progress = el('progress')
+let q = el('q')
+let rp = el('rp')
+let rt = el('rt')
+let ruby = el('ruby')
+let s = el('s')
+let samp = el('samp')
+let script = el('script')
 let section = el('section')
 let select = el('select')
+let small = el('small')
+let source = el('source')
 let span = el('span')
+let strike = el('strike')
+let strong = el('strong')
+let sub = el('sub')
+let summary = el('summary')
+let sup = el('sup')
+let svg = el('svg')
 let table = el('table')
 let tbody = el('tbody')
 let td = el('td')
+let template = el('template')
 let textarea = el('textarea')
+let tfoot = el('tfoot')
 let th = el('th')
 let thead = el('thead')
+let time = el('time')
+let title = el('title')
+let tr = el('tr')
+let track = el('track')
+let tt = el('tt')
+let u = el('u')
 let ul = el('ul')
+let variable = el('var')
+let video = el('video')
+let wbr = el('wbr')
 
 let key = k => ['key', k]
 
@@ -176,31 +275,130 @@ let stopPropagation = event => (event.stopPropagation(), event)
 
 export {
   a,
+  abbr,
+  acronym,
+  address,
+  applet,
+  area,
+  article,
   aside,
+  audio,
+  b,
+  base,
+  basefont,
+  bdi,
+  bdo,
+  big,
+  blockquote,
+  body,
+  br,
+  button,
+  canvas,
+  caption,
+  center,
+  cite,
+  code,
+  col,
+  colgroup,
+  data,
+  datalist,
+  dd,
+  del,
+  details,
+  dfn,
+  dialog,
+  dir,
   div,
+  dl,
+  dt,
+  em,
+  embed,
+  fieldset,
+  figcaption,
+  figure,
+  font,
+  footer,
+  form,
+  frame,
+  frameset,
+  head,
+  header,
+  hgroup,
   h1,
   h2,
   h3,
   h4,
   h5,
   h6,
-  button,
-  span,
-  main,
-  p,
-  ul,
-  li,
-  table,
-  thead,
-  tbody,
-  td,
-  th,
+  hr,
+  html,
+  i,
+  iframe,
+  img,
   input,
-  textarea,
+  ins,
+  kbd,
+  keygen,
+  label,
+  legend,
+  li,
+  link,
+  main,
+  map,
+  mark,
+  menu,
+  menuitem,
+  meta,
+  meter,
+  nav,
+  noframes,
+  noscript,
+  object,
+  ol,
+  optgroup,
+  option,
+  output,
+  p,
+  param,
+  picture,
+  pre,
+  progress,
+  q,
+  rp,
+  rt,
+  ruby,
+  s,
+  samp,
+  script,
   section,
   select,
-  option,
-  label,
+  small,
+  source,
+  span,
+  strike,
+  strong,
+  sub,
+  summary,
+  sup,
+  svg,
+  table,
+  tbody,
+  td,
+  template,
+  textarea,
+  tfoot,
+  th,
+  thead,
+  time,
+  title,
+  tr,
+  track,
+  tt,
+  u,
+  ul,
+  variable,
+  video,
+  wbr,
 
   key,
 
