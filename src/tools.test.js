@@ -1,5 +1,5 @@
 import { Msg } from './framework'
-import { Append, assignPath, Call, copy, valueOf } from './tools'
+import { Append, assignPath, Call, copy, removeAtPath, valueOf } from './tools'
 import { val } from './types'
 
 describe('valueOf', () => {

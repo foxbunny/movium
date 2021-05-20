@@ -1,5 +1,5 @@
 import { match, when } from './patternMatching'
-import { Any, Type, Void } from './types'
+import { Any, is, Type, Void } from './types'
 
 let id = x => x
 let has = (k, o) => Object.prototype.hasOwnProperty.call(o, k)
@@ -25,6 +25,7 @@ let copy = x => match(x,
 
 // ([...String, T], U) -> U
 let assignPath = (path, o) => {
+  path = path.slice()
   o = copy(o)
   let p = o
   while (path.length > 2) {
