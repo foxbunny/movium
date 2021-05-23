@@ -297,3 +297,10 @@ let view = model => match(model,
 With the last approach, we are no longer juggling properties that are not 
 relevant for each of the states, and we have a structure very similar to the 
 `renderes` object in the second solution achieved using pattern matching.
+
+## See also
+
+- [Types](./types.md)
+- [Tools](./tools.md)
+- [HTML](./html.md)
+- [HTTP](./http.md)

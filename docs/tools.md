@@ -288,3 +288,5 @@ props = assignPath([
 
 - [Types](./types.md)
 - [Pattern Matching](./pattern-matching.md)
+- [HTML](./html.md)
+- [HTTP](./http.md)
