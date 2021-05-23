@@ -1,12 +1,12 @@
 import { div, input, match, Msg, onInput, p, render, value, when } from 'movium'
 
-// --( Model )------------------------------------------------------------------
+// MODEL
 
 let init = () => ({
   name: 'world',
 })
 
-// --( Update )-----------------------------------------------------------------
+// UPDATE
 
 let SetName = Msg.of()
 
@@ -14,7 +14,7 @@ let update = (msg, model) => match(msg,
   when(SetName, name => ({ ...model, name })),
 )
 
-// --( View )-------------------------------------------------------------------
+// VIEW
 
 let view = model => (
   div([],
@@ -27,7 +27,7 @@ let view = model => (
   )
 )
 
-// --( Render )-----------------------------------------------------------------
+// RENDER
 
 let root = document.createElement('div')
 document.body.appendChild(root)

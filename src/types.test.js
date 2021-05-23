@@ -49,6 +49,7 @@ describe('is', () => {
     [null, Void],
     [undefined, Undefined],
     [undefined, Void],
+    [/abc/, RegExp],
     ['str', Any],
     [[1, 2, 3], Any],
     [3, Any],
@@ -59,6 +60,7 @@ describe('is', () => {
     [null, Any],
     [undefined, Any],
     [new Date(), Any],
+    [/abc/, Any],
   ])(
     '%s is of type %s',
     (x, type) => {

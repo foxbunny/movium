@@ -1,6 +1,7 @@
 import { h } from 'snabbdom'
-import { Append, assignPath, Call, id, partial } from './tools'
-import { is, val } from './types'
+import { match, when } from './patternMatching'
+import { Append, assignPath, Call, id, partial, valueOf } from './tools'
+import { Any, is, Type, val } from './types'
 
 let el = name => (props = null, ...children) => updater => {
   let propsObj = {}
@@ -8,6 +9,7 @@ let el = name => (props = null, ...children) => updater => {
 
   if (props) for (let p of props) {
     if (p == null) continue
+    if (typeof p === 'string') p = className(p, true)
     if (typeof p === 'function') p = p(updater)
     if (is(Array, p)) propsObj = assignPath(p, propsObj)
   }
@@ -137,10 +139,28 @@ let wbr = el('wbr')
 
 let key = k => ['key', k]
 
+// Class and style timing types
+let Remove = Type.of()
+let Delayed = Type.of()
+let Destroy = Type.of()
+
 // Classes
-let className = (c, use = true) => ['class', Call.val(
-  (cls = {}) => c.split(' ').reduce((o, c) => assignPath([c, use], o), cls)
-)]
+let className = (classes, use = true) => [
+  'class', Call.val(
+    (cls = {}) => {
+      let prefix = match(classes,
+        when(Remove, () => ['remove']),
+        when(Delayed, () => ['delayed']),
+        when(Destroy, () => ['destroy']),
+        when(Any, () => []),
+      )
+      return valueOf(classes).split(' ').reduce((out, name) => assignPath(prefix.concat([name, use]), out), cls)
+    },
+  ),
+]
+
+// Styles
+let style = styles => ['style', styles]
 
 // Properties
 let prop = (name, val) => ['props', name, val]
@@ -154,12 +174,9 @@ let src = partial(prop, 'src')
 let href = partial(prop, 'href')
 let name = partial(prop, 'name')
 let htmlId = partial(prop, 'id')
-let htmlFor = partial(prop, 'htmlFor')
+let htmlFor = partial(prop, 'for')
 let alt = partial(prop, 'alt')
 let htmlTitle = partial(prop, 'title')
-
-// Styles
-let style = styles => ['style', styles]
 
 // Hooks
 let hook = (hookName, f) => update => [
@@ -167,7 +184,7 @@ let hook = (hookName, f) => update => [
   hookName,
   typeof f === 'function'
     ? (...args) => f(update, ...args)
-    : (...args) => update(val(f, args))
+    : (...args) => update(val(f, args)),
 ]
 let onPre = partial(hook, 'pre')
 let onInit = partial(hook, 'init')
@@ -183,7 +200,7 @@ let onPost = partial(hook, 'post')
 let nextFrame = f => (update, ...args) =>
   requestAnimationFrame(() => typeof f === 'function'
     ? f(update, ...args)
-    : update(val(f, args))
+    : update(val(f, args)),
   )
 
 // Event listeners
@@ -398,6 +415,9 @@ export {
   onPost,
   nextFrame,
 
+  Remove,
+  Delayed,
+  Destroy,
   className,
   style,
 

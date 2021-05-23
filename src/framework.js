@@ -1,6 +1,7 @@
-import { classModule, eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
+import { eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
+import { classModule } from './snabbdomModules/classes'
 import { match, when } from './patternMatching'
-import { documentEventListeners, outsideEventListeners } from './specialEventListeners'
+import { documentEventListeners, outsideEventListeners } from './snabbdomModules/specialEventListeners'
 import { id } from './tools'
 import { Any, is, Type, val } from './types'
 
@@ -71,8 +72,8 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   let updater = msg => {
     if (rendering)
       throw Error('Message received during rendering. Are you updating from a hook without using nextFrame()?')
-    if (is(DoNothing, msg)) return
     model = update(msg, model)
+    if (is(DoNothing, model)) return
     renderView()
   }
   renderView()

@@ -9,6 +9,7 @@ let examples = [
   'async-tasks',
   'special-events',
   'initial-load',
+  'css-transitions',
 ]
 
 module.exports = {

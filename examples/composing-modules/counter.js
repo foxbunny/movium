@@ -1,6 +1,10 @@
 import { button, className, disabled, div, match, Msg, onClick, span, when } from 'movium'
 
+// MODEL
+
 let init = (n = 0) => n
+
+// UPDATE
 
 let Inc = Msg.of()
 let Dec = Msg.of()
@@ -10,11 +14,13 @@ let update = (msg, model) => match(msg,
   when(Dec, () => Math.max(0, model - 1)),
 )
 
+// VIEW
+
 let view = model => (
-  div([className('counter')],
-    button([className('counter-inc'), disabled(model === 9), onClick(Inc)], '+'),
-    span([className('counter-num')], model),
-    button([className('counter-dec'), disabled(model === 0), onClick(Dec)], '-'),
+  div(['counter'],
+    button(['counter-inc', disabled(model === 9), onClick(Inc)], '+'),
+    span(['counter-num'], model),
+    button(['counter-dec', disabled(model === 0), onClick(Dec)], '-'),
   )
 )
 

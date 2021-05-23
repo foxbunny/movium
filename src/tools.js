@@ -1,67 +1,84 @@
 import { match, when } from './patternMatching'
-import { Any, is, Type, Void } from './types'
+import { Any, is, Type, ValueObject, Void } from './types'
 
 let id = x => x
-let has = (k, o) => Object.prototype.hasOwnProperty.call(o, k)
-let isVoid = x => x == null
-let isValueObject = x => has('value', x)
-let valueOf = x => isVoid(x) ? x : isValueObject(x) ? x.value : x
-let tap = (f, x) => {
-  f(x)
-  return x
-}
+let has = (k, x) => Object.prototype.hasOwnProperty.call(x, k)
+let valueOf = x => is(ValueObject, x) ? x.value : x
+let partial = (f, ...args) => f.bind(undefined, ...args)
+let tap = (f, x) => (f(x), x)
+let log = x => partial(tap, x => console.log(x))
 
 let Append = Type.of()
 let Call = Type.of()
+let Merge = Type.of()
 
+const CopyHandlers = []
 let copy = x => match(x,
-  when(Object, x => ({ ...x })),
-  when(Array, x => Array.from(x)),
-  when(Set, x => new Set(x)),
-  when(Map, x => new Map(x)),
-  when(Date, x => new Date(x)),
+  ...CopyHandlers,
+  when(ValueObject, val => Object.getPrototypeOf(x).val(val)),
+  when(Type, () => Object.getPrototypeOf(x).of({ ...x })),
+  when(Object, val => ({ ...val })),
+  when(Array, val => Array.from(val)),
+  when(Set, val => new Set(val)),
+  when(Map, val => new Map(val)),
+  when(Date, val => new Date(val)),
   when(Any, id),
+)
+copy.define = (type, handler) => CopyHandlers.unshift(when(type, handler))
+copy.remove = type => CopyHandlers.splice(CopyHandlers.indexOf(CopyHandlers.find(x => x.type === type)), 1)
+
+let merge = (x, y) => match(x,
+  when(ValueObject, () => Object.getPrototypeOf(x).val(merge(valueOf(x), valueOf(y)))),
+  when(Type, () => Object.getPrototypeOf(x).of({ ...x, ...y })),
+  when(Object, () => ({ ...x, ...y })),
+  when(Array, () => [...x, ...y]),
+  when(Set, () => new Set([...x, ...y])),
+  when(Map, () => new Map([...x, ...y])),
+  when(Number, () => x + y),
+  when(String, () => x + y),
+  when(Any, () => y),
 )
 
 // ([...String, T], U) -> U
-let assignPath = (path, o) => {
+let assignPath = (path, x) => {
   path = path.slice()
-  o = copy(o)
-  let p = o
+  x = copy(x)
+
+  let p = valueOf(x)
+
   while (path.length > 2) {
     let k = path.shift()
     let v = has(k, p) ? copy(p[k]) : {}
-    p = p[k] = v
+    p = valueOf(p[k] = v)
   }
+
   let [k, v] = path
+
   p[k] = match(v,
-    when(Append, v => match(
-      p[k],
+    when(Append, v => match(p[k],
       when(Array, () => [...p[k], v]),
       when(Void, () => v),
       when(Any, () => [p[k], v]),
     )),
     when(Call, f => f(p[k])),
+    when(Merge, y => merge(p[k], y)),
     when(Any, () => v),
   )
-  return o
+
+  return x
 }
-
-// (((...T, U) -> V), ...T) -> U -> V
-let partial = (f, ...args) => f.bind(undefined, ...args)
-
-// T -> T
-let log = x => console.log(x) ||  x
 
 export {
   Append,
   Call,
+  Merge,
   has,
   valueOf,
   id,
-  copy,
-  assignPath,
   partial,
   log,
   tap,
+  copy,
+  merge,
+  assignPath,
 }

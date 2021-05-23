@@ -47,11 +47,7 @@ let invokeHandler = (handler, vnode, event) => {
 
 let handleDocumentEvent = (event, vnode) => {
   let name = event.type
-  let handlers = vnode.data.onDocument?.[name]
-
-  // No handlers?
-  if (handlers == null) return
-
+  let handlers = vnode.data.onDocument[name]
   invokeHandler(handlers, vnode, event)
 }
 
@@ -59,10 +55,7 @@ let handleOutsideEvent = (event, vnode) => {
   let target = event.target
   let name = event.type
   let el = vnode.elm
-  let handlers = vnode.data.onOutside?.[name]
-
-  // No handlers?
-  if (handlers == null) return
+  let handlers = vnode.data.onOutside[name]
 
   // No an outside event?
   if (el.contains(target)) return

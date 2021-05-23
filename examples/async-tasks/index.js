@@ -11,15 +11,15 @@ import {
   onClick,
   p,
   render,
-  Task, Type,
-  ul,
+  Task,
+  Type,
   when,
 } from 'movium'
 
 // MODEL
 
 let Loading = Type.of()
-let Error = Type.of()
+let Failed = Type.of()
 let Loaded = Type.of()
 
 let init = () => Loaded.val([])
@@ -34,7 +34,7 @@ let update = (msg, model) => match(msg,
   when(Load, () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), ReceiveData)),
   when(ReceiveData, result => match(result,
     when(HttpResult, data => Loaded.val(data.data)),
-    when(HttpError, error => Error.val(error)),
+    when(HttpError, error => Failed.val(error)),
   )),
   when(Clear, () => init()),
 )
@@ -51,7 +51,7 @@ let view = model => console.log(model) || (
     match(model,
       when(Loading, () => 'Loading...'),
       when(Loaded, data => data.map(d => li([], d.name))),
-      when(Error, () => 'Error while loading data'),
+      when(Failed, () => 'Error while loading data'),
     ),
   )
 )

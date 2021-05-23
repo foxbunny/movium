@@ -47,9 +47,33 @@ TODO
 
 ## Documentation
 
+### Library functions
+
+- [Types](./docs/types.md)
+- [Pattern matching](./docs/pattern-matching.md)
+- [Tools](./docs/tools.md)
+
+### Application development guides
+
 - [Quick start](./docs/quick-start.md)
 - [Composing modules](./docs/composing-modules.md)
 - [Async tasks](./docs/async-tasks.md)
+- [Classes](./docs/classes.md)
 
+### Example code
 
+The `examples` directory contains a handful of example apps that demonstrate 
+concepts discussed in the documentation as well as one or two that are not. 
+
+To start the example apps, clone this repository to a machine that has 
+[NodeJS](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/), and run 
+the following commands:
+
+```javascript
+yarn install
+yarn examples:start
+```
+
+The visit `http://localhost:8080` in your browser to see the access the page 
+with a list of examples.
 

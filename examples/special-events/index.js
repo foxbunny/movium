@@ -15,6 +15,8 @@ import {
 } from 'movium'
 import './index.css'
 
+// MODEL
+
 let NEXT_COLOR = {
   blue: 'green',
   green: 'red',
@@ -27,6 +29,8 @@ let init = () => ({
   messageShown: true,
 })
 
+// UPDATE
+
 let ChangeBorderColor = Msg.of()
 let HideMessage = Msg.of()
 
@@ -35,15 +39,17 @@ let update = (msg, model) => match(msg,
   when(HideMessage, () => assignPath(['messageShown', false], model)),
 )
 
+// VIEW
+
 let view = model => (
-  div([className('border'), style({ backgroundColor: model.borderColor })],
+  div(['border', style({ backgroundColor: model.borderColor })],
     model.messageShown
       ? div([
-        className('inner'),
+        'inner',
         onMouseDownOutside(ChangeBorderColor, prevent),
         onKeyDocument('Space', ChangeBorderColor),
       ],
-      p([className('message')],
+      p(['message'],
         'Click on the colored border to toggle its color. You can also press ' +
         'space to achieve the same. If you click on this box, the color will ' +
         'not toggle. You can use the button below to remove the element that ' +
@@ -57,6 +63,8 @@ let view = model => (
       : null,
   )
 )
+
+// RENDER
 
 let root = document.createElement('div')
 document.body.appendChild(root)
