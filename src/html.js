@@ -35,7 +35,6 @@ let base = el('base')
 let bdi = el('bdi')
 let bdo = el('bdo')
 let blockquote = el('blockquote')
-let body = el('body')
 let br = el('br')
 let button = el('button')
 let canvas = el('canvas')
@@ -72,7 +71,6 @@ let h4 = el('h4')
 let h5 = el('h5')
 let h6 = el('h6')
 let hr = el('hr')
-let html = el('html')
 let i = el('i')
 let iframe = el('iframe')
 let img = el('img')
@@ -128,7 +126,6 @@ let tfoot = el('tfoot')
 let th = el('th')
 let thead = el('thead')
 let time = el('time')
-let title = el('title')
 let tr = el('tr')
 let track = el('track')
 let u = el('u')
@@ -176,7 +173,7 @@ let name = partial(prop, 'name')
 let htmlId = partial(prop, 'id')
 let htmlFor = partial(prop, 'for')
 let alt = partial(prop, 'alt')
-let htmlTitle = partial(prop, 'title')
+let title = partial(prop, 'title')
 
 // Hooks
 let hook = (hookName, f) => update => [
@@ -212,7 +209,9 @@ let codeGetter = ev => ev.code
 let listener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
   ['on', eventName, Append.val(ev => update(val(proto, f(ev))))]
 let onClick = listener('click', id)
-let onInput = listener('input', ev => typeof ev.target.value === 'string' ? ev.target.value : ev.target.innerText)
+let onInput = listener('input', ev => is(String, ev.target.value) ? ev.target.value : ev.target.innerText)
+let onChange = listener('input', ev => is(String, ev.target.value) ? ev.target.value : ev)
+let onFocus = listener('focus', id)
 let onBlur = listener('blur', id)
 let onMouseDown = listener('mousedown', id)
 let onMouseMove = listener('mousemove', id)
@@ -298,7 +297,6 @@ export {
   bdi,
   bdo,
   blockquote,
-  body,
   br,
   button,
   canvas,
@@ -325,7 +323,6 @@ export {
   font,
   footer,
   form,
-  head,
   header,
   hgroup,
   h1,
@@ -335,7 +332,6 @@ export {
   h5,
   h6,
   hr,
-  html,
   i,
   iframe,
   img,
@@ -391,7 +387,6 @@ export {
   th,
   thead,
   time,
-  title,
   tr,
   track,
   u,
@@ -434,7 +429,7 @@ export {
   htmlId,
   htmlFor,
   alt,
-  htmlTitle,
+  title,
 
   onClick,
   onInput,
