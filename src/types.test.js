@@ -1,5 +1,5 @@
 import { Msg } from './framework'
-import { Any, is, Iterable, IterableObject, Null, Type, Undefined, Void } from './types'
+import { Any, Empty, EmptyObject, is, Iterable, IterableObject, Null, Primitive, Type, Undefined, Void } from './types'
 
 describe('Type', () => {
   test('create a type using of()', () => {
@@ -33,11 +33,31 @@ describe('is', () => {
 
   test.each([
     ['str', String],
+    ['str', Primitive],
+    ['', Empty],
     [[1, 2, 3], Array],
+    [[], Empty],
     [3, Number],
+    [1, Primitive],
     [{}, Object],
+    [{}, EmptyObject],
+    [{}, Empty],
+    [null, Void],
+    [null, Null],
+    [null, Primitive],
+    [undefined, Void],
+    [undefined, Undefined],
+    [undefined, Primitive],
+    [Symbol('test'), Symbol],
+    [Symbol('test'), Primitive],
+    [/abc/, RegExp],
+    [/test/, Primitive],
     [new Date(), Date],
     [Msg.val('test'), Msg],
+    [new Set(), Set],
+    [new Set(), Empty],
+    [new Map(), Map],
+    [new Map(), Empty],
     [[1, 2, 3], Iterable],
     ['string', Iterable],
     [new Set(), Iterable],
@@ -45,11 +65,6 @@ describe('is', () => {
     [[1, 2, 3], IterableObject],
     [new Set(), IterableObject],
     [new Map(), IterableObject],
-    [null, Null],
-    [null, Void],
-    [undefined, Undefined],
-    [undefined, Void],
-    [/abc/, RegExp],
     ['str', Any],
     [[1, 2, 3], Any],
     [3, Any],
@@ -67,6 +82,13 @@ describe('is', () => {
       expect(is(type, x)).toBe(true)
     }
   )
+
+  test('not empty object', () => {
+    expect(is(EmptyObject, [])).toBe(false)
+    expect(is(EmptyObject, 1)).toBe(false)
+    expect(is(EmptyObject, null)).toBe(false)
+    expect(is(EmptyObject, false)).toBe(false)
+  })
 
   let Fooable = Type.of()
 

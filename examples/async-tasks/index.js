@@ -41,7 +41,7 @@ let update = (msg, model) => match(msg,
 
 // VIEW
 
-let view = model => console.log(model) || (
+let view = model => (
   div([],
     p([],
       button([onClick(Load)], 'Load data'),

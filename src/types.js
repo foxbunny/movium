@@ -1,5 +1,3 @@
-import { has } from './tools'
-
 let Type = Object.freeze({
   of (x) {
     return Object.create(this, x != null ? Object.getOwnPropertyDescriptors(x) : undefined)
@@ -11,6 +9,7 @@ let Type = Object.freeze({
 
 let Any = Type.of()
 let Void = Type.of()
+let NonVoid = Type.of()
 let Null = Type.of()
 let Undefined = Type.of()
 let Iterable = Type.of()
@@ -18,18 +17,27 @@ let IterableObject = Type.of()
 let ValueObject = Type.of()
 let Primitive = Type.of()
 let Complex = Type.of()
+let EmptyObject = Type.of()
+let Empty = Type.of()
 
 const PRIMITIVE_TYPES = [String, Number, Boolean, RegExp, Symbol]
 
 let TypeInferenceMappings = new Map([
   [Void, x => x == null],
+  [NonVoid, x => x != null],
   [Undefined, x => x === void (0)],
   [Null, x => x === null],
-  [Iterable, x => x != null && typeof x[Symbol.iterator] === 'function'],
-  [IterableObject, x => x != null && typeof x[Symbol.iterator] === 'function' && typeof x === 'object'],
-  [ValueObject, x => x != null && has('value', x) && is(Type, x)],
-  [Primitive, x => x == null || PRIMITIVE_TYPES.includes(x.constructor)],
-  [Complex, x => x != null && typeof x === 'object'],
+  [Iterable, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function'],
+  [IterableObject, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function' && typeof x === 'object'],
+  [ValueObject, x => is(NonVoid, x) && Object.prototype.hasOwnProperty.call(x, 'value') && is(Type, x)],
+  [Primitive, x => is(Void, x) || PRIMITIVE_TYPES.includes(x.constructor)],
+  [Complex, x => is(NonVoid, x) && typeof x === 'object'],
+  [EmptyObject, x => {
+    if (!is(Object, x)) return false
+    for (let k in x) if (Object.prototype.hasOwnProperty.call(x, k)) return false
+    return true
+  }],
+  [Empty, x => is(Void, x) || is(EmptyObject, x) || x.length === 0 || x.size === 0],
   [Any, () => true],
 ])
 
@@ -56,6 +64,7 @@ export {
   Type,
   Any,
   Void,
+  NonVoid,
   Undefined,
   Null,
   Iterable,
@@ -63,6 +72,8 @@ export {
   ValueObject,
   Primitive,
   Complex,
+  EmptyObject,
+  Empty,
   is,
   val,
 }
