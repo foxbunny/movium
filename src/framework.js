@@ -1,8 +1,8 @@
 import { eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
-import { classModule } from './snabbdomModules/classes'
 import { match, when } from './patternMatching'
+import { classModule } from './snabbdomModules/classes'
 import { documentEventListeners, outsideEventListeners } from './snabbdomModules/specialEventListeners'
-import { id } from './tools'
+import { valueOf } from './tools'
 import { Any, is, Type, val } from './types'
 
 let Msg = Type.of()
@@ -21,12 +21,8 @@ let DoNothing = Type.of()
 let scope = (proto, view) => update =>
   view(msg => update(typeof proto === 'function' ? proto(msg) : val(proto, msg)))
 
-// (Type, View) -> * -> View
-let scopedItem = (proto, view) => item => update =>
-  view(item)(msg => update(val(proto, { item, msg })))
-
 // (Msg, Msg) -> True
-let isMsg = (proto, x) => x != null && (is(proto, x) || is(proto, x.value) || isMsg(proto, x.value?.msg))
+let isMsg = (proto, x) => x != null && (is(proto, x) || is(proto, valueOf(x)) || isMsg(proto, valueOf(x)?.msg))
 let inMsgs = (protoList, x) => protoList.some(t => isMsg(t, x))
 
 // (HTMLElement, (-> Model), Update, View, SnabbdomModule[]) -> Void
@@ -45,34 +41,49 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   let model = init()
   let rendering = false
   let renderView = () => {
+    // Render the view on next frame to avoid recursion due to synchronous
+    // execution.
     requestAnimationFrame(() => {
       rendering = true
       model = match(model,
         when(Task, t => {
-          // use RAF to avoid a infinite recursion issue if task happens to be
-          // sync (e.g., a value wrapped in a `Promise.resolve()`).
-          requestAnimationFrame(() =>
-            t.work
-              .then(
-                x => updater(val(t.msg, x)),
-                err => updater(val, t.msg, err)
-              )
-          )
+          t.work
+            .then(
+              x => updater(val(t.msg, x)),
+              e => updater(val(t.msg, e)),
+            )
           return t.model
         }),
         when(Any, () => model),
       )
-      let newVnode = view(model)(updater)
-      patch(oldVnode, newVnode)
-      oldVnode = newVnode
+
+      try {
+        let newVnode = view(model)(updater)
+        patch(oldVnode, newVnode)
+        oldVnode = newVnode
+      } catch (e) {
+        console.error(`Error ${e} while rendering`)
+        console.trace(e)
+      }
 
       rendering = false
     })
   }
   let updater = msg => {
-    if (rendering)
-      throw Error('Message received during rendering. Are you updating from a hook without using nextFrame()?')
-    model = update(msg, model)
+    if (rendering) {
+      console.error(msg)
+      console.trace(Error('Message received during rendering. Are you updating from a hook without using nextFrame()?'))
+      return
+    }
+
+    try {
+      model = update(msg, model)
+    } catch (e) {
+      console.error(`Error ${e} while handling message`)
+      console.error(msg)
+      console.trace(e)
+      return
+    }
     if (is(DoNothing, model)) return
     renderView()
   }
@@ -84,7 +95,6 @@ export {
   Task,
   DoNothing,
   scope,
-  scopedItem,
   isMsg,
   inMsgs,
   render,

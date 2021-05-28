@@ -1,4 +1,4 @@
-import { div, input, match, Msg, onInput, p, render, value, when } from 'movium'
+import { assignPath, div, input, match, Msg, onInput, p, render, value, when } from 'movium'
 
 // MODEL
 
@@ -11,7 +11,10 @@ let init = () => ({
 let SetName = Msg.of()
 
 let update = (msg, model) => match(msg,
-  when(SetName, name => ({ ...model, name })),
+  when(SetName, name => {
+    if (name === 'error') throw Error('omg')
+    return assignPath(['name', name], model)
+  }),
 )
 
 // VIEW
