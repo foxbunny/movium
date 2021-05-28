@@ -77,7 +77,6 @@ functions section.
 - [Quick start](./docs/quick-start.md)
 - [Composing modules](./docs/composing-modules.md)
 - [Async tasks](./docs/async-tasks.md)
-- [Classes](./docs/classes.md)
 
 ### Example code
 
