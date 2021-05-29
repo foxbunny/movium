@@ -10,6 +10,7 @@ let examples = [
   'special-events',
   'initial-load',
   'css-transitions',
+  'theming',
 ]
 
 module.exports = {

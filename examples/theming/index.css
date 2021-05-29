@@ -1,0 +1,55 @@
+:root {
+  --light: #ececec;
+  --dark: #444;
+
+  --text-color: var(--dark);
+  --background-color: var(--light);
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 18px;
+}
+
+button {
+  font-family: inherit;
+  border: 1px solid var(--background-color);
+  border-radius: 3px;
+  background: var(--text-color);
+  color: var(--background-color);
+  padding: 0.2rem 1rem;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.app {
+  min-height: 100vh;
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.toolbar {
+  background: var(--text-color);
+  color: var(--background-color);
+  padding: 2rem;
+  text-align: right;
+}
+
+.text {
+  padding: 2rem;
+  text-align: center;
+  font-size: 3rem;
+}
