@@ -1,4 +1,4 @@
-![movium](./docs/movium.svg)
+![movium](examples/public/movium.svg)
 
 # Movium
 
