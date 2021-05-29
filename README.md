@@ -53,9 +53,19 @@ let view = model => (
 render(document.querySelector('#app'), init, update, view)
 ```
 
-## Installation
+## Starting a Movium app project
 
-Install from NPM using npm or yarn:
+The simplest way to start is to use `degit`:
+
+```shell
+npm degit foxbunny/movium/app-template my-app
+cd my-app
+yarn
+yarn start
+```
+
+If you want to set everything up from scratch, movium package is available 
+on NPM:
 
 ```shell
 yarn add movium

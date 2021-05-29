@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`view default view 1`] = `
+<div
+  class="app"
+>
+  <header
+    class="header"
+  >
+    <img
+      alt="Movium"
+      src="file-url"
+    />
+  </header>
+  <p
+    class="input"
+  >
+    <input />
+  </p>
+  <p
+    class="greeting"
+  >
+    Hello, Movium
+  </p>
+  <div
+    class="tips"
+  >
+    <h1>
+      What next?
+    </h1>
+    <p>
+      You'll find links to the Movium documentation 
+      <a
+        href="https://github.com/foxbunny/movium#documentation"
+      >
+        in the README
+      </a>
+      .
+    </p>
+  </div>
+</div>
+`;
