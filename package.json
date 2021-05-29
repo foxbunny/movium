@@ -10,10 +10,10 @@
   "scripts": {
     "test": "jest",
     "dist": "babel -d dist --ignore **/*.test.js --ignore **/__test__ src",
-    "examples:start": "webpack serve"
+    "examples:start": "webpack serve",
+    "prepublish": "yarn test",
+    "prepack": "yarn dist"
   },
-  "prepublish": "yarn test",
-  "prepack": "yarn dist",
   "jest": {
     "automock": false,
     "resetMocks": false,
