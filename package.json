@@ -12,7 +12,8 @@
     "dist": "babel -d dist --ignore **/*.test.js --ignore **/__test__ src",
     "examples:start": "webpack serve"
   },
-  "prepublishOnly": "yarn build",
+  "prepublish": "yarn test",
+  "prepack": "yarn dist",
   "jest": {
     "automock": false,
     "resetMocks": false,
