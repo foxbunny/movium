@@ -2,15 +2,17 @@
   "name": "movium",
   "version": "0.0.0",
   "description": "MVU JavaScript web framework",
-  "main": "dist/movium.js",
+  "main": "dist/index.js",
   "module": "src/index.js",
   "repository": "https://github.com/foxbunny/movium.git",
   "author": "Devius LLP <hi@devi.us>",
   "license": "MIT",
   "scripts": {
     "test": "jest",
+    "dist": "babel -d dist --ignore **/*.test.js --ignore **/__test__ src",
     "examples:start": "webpack serve"
   },
+  "prepublishOnly": "yarn build",
   "jest": {
     "automock": false,
     "resetMocks": false,
