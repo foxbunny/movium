@@ -17,6 +17,9 @@
   "jest": {
     "automock": false,
     "resetMocks": false,
+    "testPathIgnorePatterns": [
+      "app-template"
+    ],
     "setupFiles": [
       "<rootDir>/src/__test__/setup.js"
     ]
@@ -38,5 +41,11 @@
   },
   "dependencies": {
     "snabbdom": "^3.0.1"
-  }
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "docs/**/*",
+    "babel.config.js"
+  ]
 }

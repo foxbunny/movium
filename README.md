@@ -1,3 +1,5 @@
+![movium](./docs/movium.svg)
+
 # Movium
 
 Movium is an implementation of the MVU architecture (a.k.a.

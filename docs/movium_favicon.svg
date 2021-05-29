@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666665 8.4666669"
+   version="1.1"
+   id="svg878">
+  <defs
+     id="defs872">
+    <linearGradient
+       xlink:href="#linearGradient920"
+       id="linearGradient911"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.1628416,0,0.04822188,0.1555379,-11.540829,-18.623559)"
+       x1="-75.768997"
+       y1="139.91597"
+       x2="-80.821358"
+       y2="146.24086" />
+    <linearGradient
+       id="linearGradient920">
+      <stop
+         style="stop-color:#677821;stop-opacity:1"
+         offset="0"
+         id="stop916" />
+      <stop
+         style="stop-color:#354980;stop-opacity:1"
+         offset="1"
+         id="stop918" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata875">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <rect
+       style="fill:#009cea;stroke-width:0.264583"
+       id="rect1533"
+       width="8.4666662"
+       height="8.4666672"
+       x="0"
+       y="0"
+       rx="0"
+       ry="0" />
+    <path
+       id="rect893"
+       style="fill:url(#linearGradient911);fill-opacity:1;stroke-width:0.0120227"
+       d="M 5.3774495,2.2235251 6.6021809,6.1736717 H 8.4666666 V 2.2235251 Z" />
+    <rect
+       style="fill:#677821;fill-opacity:1;stroke-width:0.0123017"
+       id="rect895"
+       width="3.0892119"
+       height="4.1351438"
+       x="-2.5209522"
+       y="2.3281832"
+       transform="matrix(-1,0,0.2961275,0.95514842,0,0)"
+       rx="0"
+       ry="0" />
+    <path
+       id="rect897"
+       style="fill:#abc837;fill-opacity:1;stroke-width:0.0120226"
+       d="M 0.12092285,2.2235251 0,2.3418642 V 5.3690695 L 3.2101398,2.2235251 Z" />
+    <rect
+       style="fill:#abc837;fill-opacity:1;stroke-width:0.0143718"
+       id="rect899"
+       width="3.0892119"
+       height="5.6440096"
+       x="7.6474185"
+       y="3.1777074"
+       transform="matrix(1,0,-0.71433918,0.69979963,0,0)"
+       rx="0"
+       ry="0" />
+  </g>
+</svg>
