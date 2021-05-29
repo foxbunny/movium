@@ -158,7 +158,7 @@ let update = (msg, model) => match(msg,
   when(InCounter, ({ key, msg }) => ({
     ...model,
     [key]: counter.update(msg, model[key])
-  }),
+  })),
 )
 ```
 
@@ -227,7 +227,7 @@ Next we add a parameter to the application's `init()` function:
 
 let init = (n = 0) => ({
   n100: counter.init(Math.floor(n / 100)),
-  n10: counter.init(Math.floor(n % 100 / 10),
+  n10: counter.init(Math.floor(n % 100 / 10)),
   n1: counter.init(n % 100 % 10),
 })
 ```
@@ -252,7 +252,7 @@ somewhere. The best place for that is the model.
 
 let init = (n = 0) => ({
   n100: counter.init(Math.floor(n / 100)),
-  n10: counter.init(Math.floor(n % 100 / 10),
+  n10: counter.init(Math.floor(n % 100 / 10)),
   n1: counter.init(n % 100 % 10),
   initialValue: n,
 })
@@ -308,3 +308,7 @@ updater then trickles the updates back down to the leaf.
 
 For patterns involving asynchronous operations, see
 [Async tasks](./async-tasks.md).
+
+## See also
+
+- [Extending Movium](./extending-movium.md)

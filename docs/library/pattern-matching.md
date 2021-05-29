@@ -3,11 +3,26 @@
 Pattern matching is a flow control mechanism used in, and provided by, Movium.
 The type of pattern matching used in Movium is similar to a switch statement
 that switches on the type of the specified value. However, type here is used
-very loosely, as types in Movium have a much broader meaning
-(see [types](./types.md)). On the other hand, pattern matching in Movium is not
-as comprehensive as in some functional programming languages. We find that this
+very loosely, as types in Movium have a much broader meaning (see
+[types](./types.md)). On the other hand, pattern matching in Movium is not as
+comprehensive as in some functional programming languages. We find that this
 design strikes a good balance between versatility and performance (but pull
 requests are welcome!).
+
+## Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [Basic example](#basic-example)
+* [Values in the when() callback](#values-in-the-when-callback)
+* [Non-matching values](#non-matching-values)
+* [Pattern matching precedence](#pattern-matching-precedence)
+* [Patterns are matched using `is()`](#patterns-are-matched-using-is)
+* [Writing custom matchers](#writing-custom-matchers)
+* [Using pattern matching and types to organize the application](#using-pattern-matching-and-types-to-organize-the-application)
+* [See also](#see-also)
+
+<!-- vim-markdown-toc -->
 
 ## Basic example
 
@@ -18,7 +33,7 @@ import { match, when, Any, id } from 'movium'
 
 let ensureArray = x => match(x,
   when(Array, id),
-  when(Any, () => [x],
+  when(Any, () => [x]),
 )
 ```
 
@@ -38,17 +53,17 @@ The special type `Any` is used to match anything. There are other special types
 discussed in the [types](./types.md) document.
 
 **NOTE:** You may have noticed a peculiar way in which the code is formatted,
-notably that there is a line break after the `x,`. This is a stylistic choice on
-the part of the Movium's author, and has no effect on the code.
+notably that there is a line break after the `x,`. This is a stylistic choice
+on the part of the Movium's author, and has no effect on the code.
 
 ## Values in the when() callback
 
-The second argument to the `when()` function will receive a value if it 
-matches the specified type. The value received by the function is usually 
-identical to the value received by `match()` with one exception. When `match()` 
-receives a value object (see [types](./types.md)), then the value received 
-by the callback is the value contained *inside* the value object, and not 
-the value object itself.
+The second argument to the `when()` function will receive a value if it matches
+the specified type. The value received by the function is usually identical to
+the value received by `match()` with one exception. When `match()` receives a
+value object (see [types](./types.md)), then the value received by the callback
+is the value contained *inside* the value object, and not the value object
+itself.
 
 ```javascript
 import { Type, match, when, id } from 'movium'
@@ -68,7 +83,7 @@ import { match, when, id } from 'movium'
 
 let ensureArray = x => match(x,
   when(Array, id),
-  when(String, () => [x],
+  when(String, () => [x]),
 )
 ```
 
@@ -95,7 +110,7 @@ import { match, when, Any, IterableObject } from 'movium'
 let ensureArray = x => match(x,
   when(Array, id),
   when(IterableObject, x => Array.from(x)),
-  when(Any, () => [x],
+  when(Any, () => [x]),
 )
 ```
 
@@ -112,7 +127,7 @@ import { match, when, Any, IterableObject } from 'movium'
 let ensureArray = x => match(x,
   when(IterableObject, x => Array.from(x)),
   when(Array, id),
-  when(Any, () => [x],
+  when(Any, () => [x]),
 )
 ```
 
@@ -122,9 +137,9 @@ captured by the first pattern.
 ## Patterns are matched using `is()`
 
 When using the `when()` function to create matchers, we need to keep in mind
-that the type passed to `when()` is matched against the value using `is()`
-(see [types](./types.md)). This means that a 'type' can be taken very loosely
-and defined per our application's needs. For example:
+that the type passed to `when()` is matched against the value using `is()` (see
+[types](./types.md)). This means that a 'type' can be taken very loosely and
+defined per our application's needs. For example:
 
 ```javascript
 import { is, match, when } from 'movium'
@@ -146,10 +161,10 @@ let renderSequence = s => match(s,
 
 ## Writing custom matchers
 
-In addition to extending the `is()` function, we can also write custom matchers.
-Custom matchers are functions that take the value and return either a
-`Match` or a `Miss` value objects whose value will be used as the return value
-of a `match()` call.
+In addition to extending the `is()` function, we can also write custom
+matchers.  Custom matchers are functions that take the value and return either
+a `Match` or a `Miss` value objects whose value will be used as the return
+value of a `match()` call.
 
 Let's rewrite the last example using a custom matcher instead of a custom type:
 
@@ -169,29 +184,29 @@ let renderSequence = s => match(s,
 ```
 
 This is not 100% the same as the previous example as we do not explicitly check
-whether `x` is a `Sequence` in our custom matcher, but it nevertheless shows the
-essence of custom matchers.
+whether `x` is a `Sequence` in our custom matcher, but it nevertheless shows
+the essence of custom matchers.
 
-The only question now is when to use a custom matcher versus a type. In terms of
-performance, there are no inherent disadvantages to either approach. Custom
+The only question now is when to use a custom matcher versus a type. In terms
+of performance, there are no inherent disadvantages to either approach. Custom
 types are internally looked up using a map, so adding a bazillion custom types
 should not have a significant impact on performance. Custom types may have a
-slight edge when it comes to readability, though, as custom matcher will clearly
-break the pattern of having a sequence of `when()`'s (pun intended).
+slight edge when it comes to readability, though, as custom matcher will
+clearly break the pattern of having a sequence of `when()`'s (pun intended).
 
 ## Using pattern matching and types to organize the application
 
-The main allure of pattern matching, combined with custom types, is the 
-ability to provide meta-information about the data without adding 
-extra properties to objects.
+The main allure of pattern matching, combined with custom types, is the ability
+to provide meta-information about the data without adding extra properties to
+objects.
 
-Let's say we have a screen in our app that shows different things depending 
-on the state of an XHR request. The states could be 'blank' (nothing has been 
-fetched yet), 'loading' (XHR request is executing), 'finished' (data was 
+Let's say we have a screen in our app that shows different things depending on
+the state of an XHR request. The states could be 'blank' (nothing has been
+fetched yet), 'loading' (XHR request is executing), 'finished' (data was
 successfully fetched), and 'failed' (data could not be fetched).
 
-We could define our application state as a single object that encodes all 
-this information:
+We could define our application state as a single object that encodes all this
+information:
 
 ```javascript
 let init = () => ({
@@ -222,13 +237,13 @@ let view = model =>
         : renderFailed(model)
 ```
 
-You can see how in this very simple example, we can introduce invalid state 
-(e.g., what happens if we have both `data` and `error`). There's also the 
-brain-twisting question of what order we should test the state in to be sure 
+You can see how in this very simple example, we can introduce invalid state
+(e.g., what happens if we have both `data` and `error`). There's also the
+brain-twisting question of what order we should test the state in to be sure
 that we've covered all the possible cases.
 
-Alternatively, we could introduce a property called `status` or similar, 
-which could have a value chosen from a finite set of options (e.g., 'blank', 
+Alternatively, we could introduce a property called `status` or similar, which
+could have a value chosen from a finite set of options (e.g., 'blank',
 'loading', etc.).
 
 ```javascript
@@ -259,8 +274,8 @@ let renderers = {
 let view = model => renderers[model.status](model)
 ```
 
-This is certainly much cleaner, but we are still left managing the values of 
-both `data` and `error` in our model, in places where we shouldn't really be 
+This is certainly much cleaner, but we are still left managing the values of
+both `data` and `error` in our model, in places where we shouldn't really be
 concerned by them.
 
 Let's try to capture the essence of the second solution using types.
@@ -294,13 +309,15 @@ let view = model => match(model,
 )
 ```
 
-With the last approach, we are no longer juggling properties that are not 
-relevant for each of the states, and we have a structure very similar to the 
+With the last approach, we are no longer juggling properties that are not
+relevant for each of the states, and we have a structure very similar to the
 `renderes` object in the second solution achieved using pattern matching.
 
 ## See also
 
-- [Types](./types.md)
-- [Tools](./tools.md)
+- [Framework functions](./framework-functions.md)
 - [HTML](./html.md)
 - [HTTP](./http.md)
+- [Snabbdom modules](./snabbdom-modules.md)
+- [Types](./types.md)
+- [Tools](./tools.md)

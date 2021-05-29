@@ -8,11 +8,32 @@ let HttpRequest = Type.of({
 })
 let HttpResponse = Type.of()
 let HttpError = HttpResponse.of()
+let HttpBadResponse = HttpError.of()
+let HttpInvalidRequest = HttpBadResponse.of()
+let HttpMissing = HttpBadResponse.of()
+let HttpForbidden = HttpBadResponse.of()
+let HttpUnauthorized = HttpBadResponse.of()
+let HttpTimeout = HttpBadResponse.of()
+let HttpConflict = HttpBadResponse.of()
+let HttpGone = HttpBadResponse.of()
+let HttpServerError = HttpBadResponse.of()
 let HttpRequestError = HttpError.of()
 let HttpResult = HttpResponse.of()
 let JSONData = Type.of()
 let XFormData = Type.of()
 let MultipartData = Type.of()
+
+const STATUS_PROTOS = {
+  400: HttpInvalidRequest,
+  401: HttpUnauthorized,
+  403: HttpForbidden,
+  404: HttpMissing,
+  408: HttpTimeout,
+  409: HttpConflict,
+  410: HttpGone,
+  422: HttpInvalidRequest,
+  500: HttpServerError,
+}
 
 let request = (method, url, options) =>
   HttpRequest.of({ url, options: { ...options, method } })
@@ -43,7 +64,7 @@ let DELETE = (url, data, options) => request('DELETE', url, requestOptions(data,
 let expecter = getter => promise => promise
   .then(res => res.ok
     ? getter(res).then(data => HttpResult.val(data))
-    : HttpError.val(res.status),
+    : (STATUS_PROTOS[res.status] || HttpBadResponse).val(res.status),
   )
   .catch(err => HttpRequestError.val(err))
 
@@ -55,6 +76,15 @@ export {
   HttpResponse,
   HttpError,
   HttpResult,
+  HttpBadResponse,
+  HttpUnauthorized,
+  HttpForbidden,
+  HttpConflict,
+  HttpMissing,
+  HttpGone,
+  HttpInvalidRequest,
+  HttpServerError,
+  HttpTimeout,
   HttpRequestError,
   JSONData,
   XFormData,

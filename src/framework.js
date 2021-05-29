@@ -22,7 +22,7 @@ let scope = (proto, view) => update =>
   view(msg => update(typeof proto === 'function' ? proto(msg) : val(proto, msg)))
 
 // (Msg, Msg) -> True
-let isMsg = (proto, x) => x != null && (is(proto, x) || is(proto, valueOf(x)) || isMsg(proto, valueOf(x)?.msg))
+let isMsg = (proto, x) => x != null && (is(proto, valueOf(x)) || isMsg(proto, valueOf(x)?.msg))
 let inMsgs = (protoList, x) => protoList.some(t => isMsg(t, x))
 
 // (HTMLElement, (-> Model), Update, View, SnabbdomModule[]) -> Void

@@ -1,6 +1,0 @@
-# HTTP
-
-TODO
-
-## See also
-

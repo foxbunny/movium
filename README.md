@@ -16,6 +16,7 @@ from time to time. Do not expect a stable release until version `1.0.0`.
 - Support for both class-based and style-based transitions
 - Support for binding to document events as well as events outside the node
 - Easily extensible at multiple levels
+- Able to continue running after an uncaught exception
 
 ## Quick example
 
@@ -62,11 +63,13 @@ This section provides an in-depth coverage of various functions that Movium
 provides. If you want a breadth-first coverage, see the application 
 development guides.
 
-- [Types](./docs/types.md)
-- [Pattern matching](./docs/pattern-matching.md)
-- [Tools](./docs/tools.md)
-- [HTML](./docs/html.md)
-- [HTTP](./docs/http.md)
+- [Framework functions](./docs/library/framework-functions.md)
+- [HTML](./docs/library/html.md)
+- [HTTP](./docs/library/http.md)
+- [Snabbdom modules](./docs/library/snabbdom-modules.md)
+- [Types](./docs/library/types.md)
+- [Pattern matching](./docs/library/pattern-matching.md)
+- [Tools](./docs/library/tools.md)
 
 ### Application development guides
 
@@ -74,9 +77,10 @@ This section provides a broad overview of how to write Movium applications.
 If you want a more in-dept look at particular features, look at the library 
 functions section.
 
-- [Quick start](./docs/quick-start.md)
-- [Composing modules](./docs/composing-modules.md)
-- [Async tasks](./docs/async-tasks.md)
+- [Quick start](./docs/guides/quick-start.md)
+- [Composing modules](./docs/guides/composing-modules.md)
+- [Async tasks](./docs/guides/async-tasks.md)
+- [Extending Movium](./docs/guides/extending-movium.md)
 
 ### Example code
 

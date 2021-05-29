@@ -9,7 +9,7 @@ import {
   POST,
   PUT,
   jsonResponse,
-  HttpResult, HttpError, HttpRequestError, HttpResponse, textResponse,
+  HttpResult, HttpError, HttpRequestError, HttpResponse, textResponse, HttpInvalidRequest,
 } from './http'
 import { is } from './types'
 
@@ -155,6 +155,7 @@ describe('jsonResponse', () => {
       .then(result => {
         expect(is(HttpResponse, result)).toBe(true)
         expect(is(HttpError, result)).toBe(true)
+        expect(is(HttpInvalidRequest, result)).toBe(true)
         expect(result.value).toBe(400)
       })
       .then(done)

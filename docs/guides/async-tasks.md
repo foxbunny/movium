@@ -147,4 +147,9 @@ of the HTTP request in it. Results can be of either the `HttpResult` or
 the `HttpError` type. We pattern-match on the result to return an 
 appropriate type of the model.
 
-The view simply pattern-matches on the type of hte 
+The view simply pattern-matches on the type of the model to determine the 
+interface elements for various stats of the request.
+
+## See also
+
+- [Extending Movium](./extending-movium.md)

@@ -176,3 +176,7 @@ functions.
 
 For a slightly more involved example, see
 [Composing modules](./composing-modules.md).
+
+## See also
+
+- [Extending Movium](./extending-movium.md)

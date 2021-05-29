@@ -4,6 +4,28 @@ Because Movium is a web application framework, it naturally ships with functions
 for creating HTML interface elements. This document lists the functions used for
 this purpose.
 
+## Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [HTML elements](#html-elements)
+  * [Element names](#element-names)
+  * [Child elements](#child-elements)
+  * [Arrays of child elements](#arrays-of-child-elements)
+  * [Conditional rendering](#conditional-rendering)
+  * [Custom elements](#custom-elements)
+* [Element properties](#element-properties)
+  * [Keys](#keys)
+  * [Classes](#classes)
+    * [Transitions using classes](#transitions-using-classes)
+  * [Styles](#styles)
+  * [Event listeners](#event-listeners)
+  * [Other properties](#other-properties)
+  * [Element lifecycle hooks](#element-lifecycle-hooks)
+* [See also](#see-also)
+
+<!-- vim-markdown-toc -->
+
 ## HTML elements
 
 To create HTML elements, we import functions with a matching name from the
@@ -55,6 +77,7 @@ let myDiv = (
       'This is a second paragraph with ',
       strong('emphasized'),
       ' text',
+    ),
   )
 )
 ```
@@ -110,6 +133,14 @@ let myDiv = (
 )
 ```
 
+### Custom elements
+
+Functions like `div()` return a function rather than a virtual node instance.
+The returned function is called with an updater function and returns a virtual
+node. Because of this, it is possible to create custom elements that take any
+arguments you like and return virtual nodes (see [extending
+Movium](../guides/extending-movium.md#custom-elements)).
+
 ## Element properties
 
 Like elements, properties are also functions (the only example is a class, which
@@ -135,11 +166,11 @@ let myButton = (
 ### Keys
 
 As mentioned briefly before, there is a `key()` property which is used to tag an
-element with a unique identifier. The key only needs to be unique amongh the
+element with a unique identifier. The key only needs to be unique among the
 siblings, and not globally. When the same view is re-rendered, if the key is
 unchanged, the old and new element are treated as the same element and not
-recreated. The flip side is that if keys are different, the old element is
-completely destroyed, which can be useful for CSS transitions.
+recreated. If keys are different, the old element is completely destroyed, which
+can be useful for CSS transitions.
 
 ### Classes
 
@@ -222,7 +253,7 @@ import { div, className, Delayed, Remove } from 'movium'
 
 let myMainDiv = div([
   'base', 
-  className(Delayed.val('reveal'))
+  className(Delayed.val('reveal')),
   className(Remove.val('reveal'), false)
 ])
 ```
@@ -411,28 +442,60 @@ property name and a value.
 
 ### Element lifecycle hooks
 
-TODO
+Because elements in Movium are virtual DOM nodes (and more specifically, 
+Snabbdom virtual DOM nodes), it is possible to hook into the nodes' 
+lifecycle hooks.
 
-## Elements are functions
+Virtual DOM nodes are replaced by a process called patching. In this process,
+a copy of the existing virtual node is compared with a new node created in the
+view, and the difference between them is calculated. This difference is then
+applied to the actual DOM in the browser. This process has several stages, and
+we are able to hook into all of them:
 
-Element functions don't return a (virtual) DOM node directly. Instead, they
-return a function that takes an updater function and returns a virtual DOM node.
-Their type is roughly like this:
+- pre - the patch process has started
+- init - a new virtual node is added but matching DOM node is not yet created
+- create - a new DOM node is created but not yet added to the DOM tree
+- insert - a new DOM node is inserted into the DOM tree
+- prepatch - a DOM node is about to be patched
+- update - a DOM node is being updated
+- postpatch - a DOM node has been patched
+- destroy - a virtual node is being removed
+- remove - a DOM node is being removed
+- post - the patch process is finished
 
-```javascript
-// (Props, ...Children) -> Updater -> VNode
-```
+To hook into the stages, we use hook properties. All hook properties expect a
+callback function as its only argument. This function is called when the
+appropraite stage is reached, and it receives the updater function (function
+used to emit messages) and possibly a number of other arguments depending on
+the stage. 
 
-This means that if you write a function that takes an updater and returns a
-`Snabbdom` VNode object, it can be used as an element in your application.
-Normally, there is no need to do that, but it's there in case you do need it
-(e.g., integrating with a 3rd party library).
+The following is a list of supported hook properties with a list of arguments a
+callback can expect:
 
-TODO
+- `onPre` - `callback(updater)`
+- `onInit` - `callback(updater, vnode)`
+- `onCreate` - `callback(updater, emptyVnode, vnode)`
+- `onInsert` - `callback(updater, vnode)`
+- `onPrepatch` - `callback(updater, oldVnode, newVnode)`
+- `onUpdate` - `callback(updater, oldVnode, newVnode)`
+- `onPostpatch` - `callback(updater, oldVnode, newVnode)`
+- `onDestroy` - `callback(updater, vnode)`
+- `onRemove` - `callback(updater, vnode, removeCallback)`
+- `onPost` - `callback(updater)`
+
+Generally speaking, lifecycle hooks are not used very often. For example,
+although the 'init' and 'insert' hooks can be used to send a message that
+intializes the application state from server-side data, for example, the same
+can be achieved by returning a `Task` from the `init` function (see [async
+tasks](./async-tasks.md)). For more complex functionality such as integration
+with a 3rd party library, it's almost always better to create custom modules
+(see [extending Movium](../guides/extending-movium.md)).
 
 ## See also
 
-- [Types](./types.md)
-- [Pattern matching](./pattern-matching.md)
-- [Tools](./tools.md)A
+- [Framework functions](./framework-functions.md)
 - [HTTP](./http.md)
+- [Snabbdom modules](./snabbdom-modules.md)
+- [Types](./types.md)
+- [Pattern Matching](./pattern-matching.md)
+- [Tools](./tools.md)

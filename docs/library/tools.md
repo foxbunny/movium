@@ -1,9 +1,26 @@
 # Tools
 
-Movium provides several functions that are aptly classified as 'tools', for the
-lack of a better word. This is a collection of lower-level utility functions
-that are used internally throughout the framework, but are also exposed so that
-you can take advantage of them when constructing your application.
+Movium provides several functions that are classified as 'tools', for the lack
+of a better word. This is a collection of lower-level utility functions that are
+used internally throughout the framework, but are also exposed so that you can
+take advantage of them when constructing your application.
+
+## Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [id(x)](#idx)
+* [has(k, x)](#hask-x)
+* [valueOf(x)](#valueofx)
+* [partial(f, ...args)](#partialf-args)
+* [tap(f, x)](#tapf-x)
+* [log(x)](#logx)
+* [copy(x)](#copyx)
+* [merge(x, y)](#mergex-y)
+* [assignPath(path, x)](#assignpathpath-x)
+* [See also](#see-also)
+
+<!-- vim-markdown-toc -->
 
 ## id(x)
 
@@ -286,7 +303,9 @@ props = assignPath([
 
 ## See also
 
-- [Types](./types.md)
-- [Pattern Matching](./pattern-matching.md)
+- [Framework functions](./framework-functions.md)
 - [HTML](./html.md)
 - [HTTP](./http.md)
+- [Snabbdom modules](./snabbdom-modules.md)
+- [Types](./types.md)
+- [Pattern Matching](./pattern-matching.md)
