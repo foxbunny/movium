@@ -53,7 +53,11 @@ render(document.querySelector('#app'), init, update, view)
 
 ## Installation
 
-TODO
+Install from NPM using npm or yarn:
+
+```shell
+yarn add movium
+```
 
 ## Documentation
 
