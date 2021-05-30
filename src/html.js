@@ -433,7 +433,9 @@ export {
 
   onClick,
   onInput,
+  onChange,
   onBlur,
+  onFocus,
   onMouseDown,
   onMouseMove,
   onMouseUp,
