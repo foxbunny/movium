@@ -1,4 +1,4 @@
-import { DoNothing, inMsgs, Msg, render, scope, Task } from './framework'
+import { delegate, DoNothing, inMsgs, Msg, render, scope, Task } from './framework'
 import { div, onClick } from './html'
 import { request } from './http'
 import { match, when } from './patternMatching'
@@ -240,7 +240,7 @@ describe('render', () => {
           p.catch(() => {})
           return p
         })(),
-        Finish
+        Finish,
       )),
       when(Finish, x => x instanceof Error ? 'failure' : 'done'),
     ))
@@ -287,5 +287,44 @@ describe('inMsgs', () => {
     let m = Msg2.val(Msg1.val('test'))
 
     expect(inMsgs([Msg1], m)).toBe(true)
+  })
+})
+
+describe('Task', () => {
+  test('delegate a task', done => {
+    let Foo = Msg.of()
+    let Bar = Msg.of()
+    let t1 = Task.from({ foo: 'bar' }, Promise.resolve('someValue'), Foo)
+    let t2 = Task.delegate(foo => ({ bar: foo }), Bar, t1)
+    expect(t2.model).toEqual({ bar: { foo: 'bar' } })
+    expect(t2.msg).toBe(Bar)
+    t2.work.then(result => {
+      expect(result).toEqual(Foo.val('someValue'))
+      done()
+    })
+  })
+})
+
+describe('delegate', () => {
+  let Foo = Msg.of()
+  let Bar = Msg.of()
+  let fn = foo => ({ bar: foo })
+
+  test('delegate when value is a model', () => {
+    let val = { foo: 'bar' }
+    let r = delegate(fn, Bar, val)
+    expect(r).toEqual({ bar: { foo: 'bar' } })
+  })
+
+  test('delegate when value is a task', done => {
+    let val = Task.from({ foo: 'bar' }, Promise.resolve('someValue'), Foo)
+    let r = delegate(fn, Bar, val)
+    expect(Object.getPrototypeOf(r)).toBe(Task)
+    expect(r.model).toEqual({ bar: { foo: 'bar' } })
+    expect(r.msg).toBe(Bar)
+    r.work.then(result => {
+      expect(result).toEqual(Foo.val('someValue'))
+      done()
+    })
   })
 })

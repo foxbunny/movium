@@ -7,11 +7,14 @@ import { Any, is, Type, val } from './types'
 
 let Msg = Type.of()
 let Task = Type.of({
-  from (model, work, msg) {
-    return Task.of({ model, work, msg })
-  },
+  from: (model, work, msg) => Task.of({ model, work, msg }),
+  delegate: (f, msg, t) => Task.from(f(t.model), t.work.then(result => val(t.msg, result)), msg),
 })
 let DoNothing = Type.of()
+let delegate = (f, msg, modelOrTask) => match(modelOrTask,
+  when(Task, t => Task.delegate(f, msg, t)),
+  when(Any, () => f(modelOrTask)),
+)
 
 // Update :: (Msg, Model) -> (Model | Task)
 // Updater :: Msg -> HTMLElement
@@ -98,4 +101,5 @@ export {
   isMsg,
   inMsgs,
   render,
+  delegate,
 }

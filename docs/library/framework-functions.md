@@ -11,6 +11,7 @@
 * [DoNothing](#donothing)
 * [isMsg(proto, x)](#ismsgproto-x)
 * [inMsgs(protos, x)](#inmsgsprotos-x)
+* [delegate(f, msg, modelOrTask)](#delegatef-msg-modelortask)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -238,6 +239,89 @@ It's important to keep in mind that the promise in the task does not return a
 model, but a value that should be handled in the update function using the
 message in the task.
 
+When working with update functions that delegate to other modules, we may 
+find ourselves dealing with tasks coming from upstream. 
+
+Let's say we have a module `book-list.js` which has an update function that
+returns tasks in some cases. In our `app.js` module, we want to delegate
+messages coming from the book list module.
+
+Let's first look at what we usually do when we do not have to deal with tasks:
+
+```javascript
+import { Msg, match, when, assignPath, Call } from 'movium'
+import * as bookList from './book-list'
+
+let init = () => ({
+  books: bookList.init(),
+})
+
+let InBookList = Msg.of()
+
+let update = (msg, model) => match(msg,
+  when(InBookList, msg => 
+    assignPath(
+      ['books', Call.val(books => bookList.update(msg, books)], 
+      model
+    )
+  ),
+)
+```
+
+This will work as long as `bookList.update()` does not return a `Task`. If 
+it does, then `model.books` becomes a `Task` object, which is not what we want.
+
+To address this, we use the `Task.delegate` function like this:
+
+```javascript
+import { Msg, match, when, assignPath, Task, Any } from 'movium'
+
+// ....
+
+let update = (msg, model) => match(msg,
+  when(InBookList, msg => 
+    match(bookList.update(msg, model.books),
+      when(Task, task => Task.delegate(
+        books => assignPath(['books', books], model),
+        InBookList,
+        task,
+      )),
+      when(Any, books => assignPath(['books', books], model)),
+    )
+  ),
+)
+```
+
+In the modified example, we first call the `bookList.update()`, and then we 
+take the results, which is either a `Task`, or a book list model, and we 
+pattern match its type to decide what we want to do. If it's a `Task`, then 
+we use the `Task.delegate()` to wrap the original task.
+
+`Task.delegate()` takes three arguments. The first argument is a function 
+that transforms the model in the original task. The second argument is a 
+message prototype to which the result should be relayed after the wrapper 
+task is done (this is the same argument as the third argument in `Task.from()`). 
+The third argument to `Task.delegate()` is the source task itself.
+
+We see some code duplication in there. Namely, we have duplicated the 
+function that assigns the updated book list model to `model.books`. Since 
+this is a typical case, Movium provides a `delegate()` function which 
+captures this pattern. The last example can be rewritten as follows:
+
+```javascript
+import { Msg, match, when, assignPath, Task, Any, delegate } from 'movium'
+
+// ....
+
+let update = (msg, model) => match(msg,
+  when(InBookList, msg => delegate(
+    books => assignPath(['books', books], model),
+    InBookList, 
+    bookList.update(msg, model.books),
+  )),
+)
+```
+
 ## DoNothing
 
 This is a prototype that can be used in update functions to signal that we want
@@ -265,6 +349,11 @@ discussed in the [scoped() section](#scopeproto-view).
 Does the same as `isMsg()`, but tests multiple prototypes in the `protos`
 array and returns `true` if at least one of the prototypes is a match according
 to the rules we discussed under `isMsg()`.
+
+## delegate(f, msg, modelOrTask)
+
+Delegates the handling of a model or a task to the specified message and 
+performs the update specified by the function `f`. See `Task`.
 
 ## See also
 
