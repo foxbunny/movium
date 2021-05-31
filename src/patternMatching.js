@@ -12,17 +12,13 @@ let match = (x, ...cases) => {
   throw Error(`No match for ${x}`)
 }
 
-let when = (type, f) => {
-  let matcher = x => is(type, x)
-    ? Match.val(f(valueOf(x)))
-    : Miss.val()
-  matcher.type = type
-  return matcher
-}
+let whenRaw = (type, f) => x => is(type, x) ? Match.val(f(x)) : Miss.val()
+let when = (type, f) => whenRaw(type, x => f(valueOf(x)))
 
 export {
   Match,
   Miss,
   match,
   when,
+  whenRaw,
 }

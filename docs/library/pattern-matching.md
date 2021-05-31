@@ -20,6 +20,7 @@ requests are welcome!).
 * [Patterns are matched using `is()`](#patterns-are-matched-using-is)
 * [Writing custom matchers](#writing-custom-matchers)
 * [Using pattern matching and types to organize the application](#using-pattern-matching-and-types-to-organize-the-application)
+* [Raw match](#raw-match)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -312,6 +313,31 @@ let view = model => match(model,
 With the last approach, we are no longer juggling properties that are not
 relevant for each of the states, and we have a structure very similar to the
 `renderes` object in the second solution achieved using pattern matching.
+
+## Raw match
+
+As mentioned before, matching using `when()` unpacks any value objects passed
+to the `match()` before invoking the callback. This is sometimes not the
+desired result. Movium provides a `whenRaw()` function which does not unpack
+the value object as an alternative. Here's an example:
+
+```
+import { Type, match, when, whenRaw, id } from 'movium'
+
+let Unpack = Type.of()
+let LeaveAlone = Type.of()
+
+match(LeaveAlone.val('test'),
+  when(Unpack, id),
+  whenRaw(LeaveAlone, id),
+)
+// => LeaveAlone.val('test')
+```
+
+This can be useful when we are working with values that need to be passed down
+to code that does pattern matching itself and we want to keep the type of the
+value (e.g., when working with update functions that delegate to some other
+module).
 
 ## See also
 
