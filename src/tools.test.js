@@ -1,5 +1,5 @@
 import { Msg } from './framework'
-import { Append, assignPath, Call, copy, has, merge, Merge, partial, tap, valueOf } from './tools'
+import { Append, assignPath, Call, copy, has, log, merge, Merge, partial, tap, valueOf } from './tools'
 import { is, Type } from './types'
 
 describe('has', () => {
@@ -337,5 +337,15 @@ describe('tap', () => {
     let r = tap(f, 'value')
     expect(r).toBe('value')
     expect(f).toHaveBeenCalledWith('value')
+  })
+})
+
+describe('log', () => {
+  test('log a value and return it', () => {
+    jest.spyOn(console, 'log')
+    let x = log('test')
+    expect(x).toBe('test')
+    expect(console.log).toHaveBeenCalledWith('test')
+    console.log.mockRestore()
   })
 })

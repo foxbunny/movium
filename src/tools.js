@@ -6,7 +6,7 @@ let has = (k, x) => Object.prototype.hasOwnProperty.call(x, k)
 let valueOf = x => is(ValueObject, x) ? x.value : x
 let partial = (f, ...args) => f.bind(undefined, ...args)
 let tap = (f, x) => (f(x), x)
-let log = x => partial(tap, x => console.log(x))
+let log = partial(tap, x => console.log(x))
 
 let Append = Type.of()
 let Call = Type.of()
