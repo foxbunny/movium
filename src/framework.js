@@ -10,7 +10,6 @@ let Task = Type.of({
   from: (model, work, msg) => Task.of({ model, work, msg }),
   delegate: (f, msg, t) => Task.from(f(t.model), t.work.then(result => val(t.msg, result)), msg),
 })
-let DoNothing = Type.of()
 let delegate = (f, msg, modelOrTask) => match(modelOrTask,
   when(Task, t => Task.delegate(f, msg, t)),
   when(Any, () => f(modelOrTask)),
@@ -79,6 +78,8 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
       return
     }
 
+    let currentModel = model
+
     try {
       model = update(msg, model)
     } catch (e) {
@@ -87,7 +88,7 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
       console.trace(e)
       return
     }
-    if (is(DoNothing, model)) return
+    if (model === currentModel) return
     renderView()
   }
   renderView()
@@ -96,7 +97,6 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
 export {
   Msg,
   Task,
-  DoNothing,
   scope,
   isMsg,
   inMsgs,

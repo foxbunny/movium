@@ -1,13 +1,14 @@
 import {
-  assignPath, button,
+  button,
   Call,
-  className,
   div,
   match,
-  Msg, onClick,
+  Msg,
+  onClick,
   onKeyDocument,
   onMouseDownOutside,
   p,
+  patch,
   prevent,
   render,
   style,
@@ -35,8 +36,8 @@ let ChangeBorderColor = Msg.of()
 let HideMessage = Msg.of()
 
 let update = (msg, model) => match(msg,
-  when(ChangeBorderColor, () => assignPath(['borderColor', Call.val(c => NEXT_COLOR[c])], model)),
-  when(HideMessage, () => assignPath(['messageShown', false], model)),
+  when(ChangeBorderColor, () => patch(['borderColor', Call.val(c => NEXT_COLOR[c])], model)),
+  when(HideMessage, () => patch(['messageShown', false], model)),
 )
 
 // VIEW

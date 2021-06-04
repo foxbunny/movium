@@ -17,7 +17,8 @@ take advantage of them when constructing your application.
 * [log(x)](#logx)
 * [copy(x)](#copyx)
 * [merge(x, y)](#mergex-y)
-* [assignPath(path, x)](#assignpathpath-x)
+* [patch(path, x)](#patchpath-x)
+* [using(expressions, f)](#usingexpressions-f)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -176,8 +177,8 @@ let z = copy(x)
 x === y  // => true
 ```
 
-Please keep in mind that `assignPath()` uses `copy()` under the hood, so
-extensions to `copy()` affect its behavior.
+Please keep in mind that `patch()` uses `copy()` under the hood, so extensions
+to `copy()` affect its behavior.
 
 ## merge(x, y)
 
@@ -196,7 +197,7 @@ merge(1, 4) // => 5
 
 Unlike `copy()`, this function cannot be extended or modified.
 
-## assignPath(path, x)
+## patch(path, x)
 
 This function creates a copy of the value and performs an operation at the
 specified path. The `path` argument is an array of keys and indices that ends in
@@ -204,36 +205,49 @@ a value or an operation.
 
 **NOTE:** In most JavaScript libraries, this type of function will take three
 arguments: the path, the value, and an object on which assignment is
-performed. `assignPath`, on the other hand, takes only two arguments, because
-the value is part of the path. This design has one advantage over the more
+performed. `patch`, on the other hand, takes only two arguments, because the
+value is part of the path. This design has one advantage over the more
 conventional one, which is that the path, and the value can be passed around as
 a single value. This is taken advantage of in many places within Movium, but
 most notably in HTML properties (see
 [html](./html.md)).
 
-This function works on anything that has properties, including objects, 
-arrays, objects using custom classes and prototypes, DOM nodes, etc. Note, 
-however, that only values supported by `copy()` are copied.
+This function works on anything that has properties, including objects, arrays,
+objects using custom classes and prototypes, DOM nodes, etc. Note, however, that
+only values supported by `copy()` are copied.
 
 ```javascript
-import { assignPath } from 'movium'
+import { patch } from 'movium'
 
 let x = { foo: { bar: [1, 2, 3] } }
-let y = assignPath(['foo', 'bar', 2, 6], x)
+let y = patch(['foo', 'bar', 2, 6], x)
 
 x === y // => false
 y // => { foo: { bar: [1, 2, 6] } }
 ```
 
-This creates not only a copy of the object that is passed to `assignPath()`, 
-but any of the objects that are along the specified path. In the above example,
-we are creating a copy of the `x` object, and also `x.foo`, and the array 
+This creates not only a copy of the object that is passed to `patch()`, but any
+of the objects that are along the specified path. In the above example, we are
+creating a copy of the `x` object, and also `x.foo`, and the array
 `x.foo.bar`.
+
+There is an exception to the copying behavior of `patch()`. If the value being
+assigned at the target path exactly matches the value that is already at the
+path, then the original object is returned as is. For example:
+
+```javascript
+import { patch } from 'movium'
+
+let x = { foo: { bar: [1, 2, 3] } }
+let y = patch(['foo', 'bar', 2, 3], x)
+
+x === y // => true
+```
 
 Typed and value objects are copied as well. For example:
 
 ```javascript
-import { assignPath, Type, is } from 'movium'
+import { patch, Type, is } from 'movium'
 
 let Foo = Type.of()
 let Bar = Type.of()
@@ -245,61 +259,143 @@ let x = Foo.of({
     }) 
   } 
 })
-let y = assignPath(['foo', 'bar', 'baz', 2, 6], x)
+let y = patch(['foo', 'bar', 'baz', 2, 6], x)
 
 is(Foo, y) // => true
 is(Bar, y.foo.bar) // => true
 y.foo.bar.value // => { baz: [1, 2, 6] }
 ```
 
-In example thus far, we have seen how to assign values. `assignPath()`, 
-despite its name, is not limited to assigning values, though. By wrapping 
-the last item in the `path` argument, we can modify the default behavior. 
-There are several wrappers that serve this purpose. 
+In example thus far, we have seen how to assign values. This function is not
+limited to assigning values, though. By wrapping the last item in the `path`
+argument, we can modify the default behavior. There are several wrappers that
+serve this purpose.
 
-The `Append` wrapper causes `assignPath()` to append the value at the 
-specified path. If there is no value, it will simply assign, but if there is 
-already a value, it will append to it.
+The `Append` wrapper causes `patch()` to append the value at the specified path.
+If there is no value, it will simply assign, but if there is already a value, it
+will append to it.
 
 ```javascript
-import { assignPath, Append } from 'movium'
+import { patch, Append } from 'movium'
 
 let handlers = {}
-handlers = assignPath(['click', Append.val('save')], handlers)
+handlers = patch(['click', Append.val('save')], handlers)
 // => { click: 'save' }
-handlers = assignPath(['click', Append.val('close')], handlers)
+handlers = patch(['click', Append.val('close')], handlers)
 // => { click: ['save', 'close'] }
-handlers = assignPath(['click', Append.val('logOut')], handlers)
+handlers = patch(['click', Append.val('logOut')], handlers)
 // => { click: ['save', 'close', 'logOut'] }
 ```
 
-The `Call` wrapper wraps a function which is called with the current value 
-at the path, and its return value is then assigned to the same location.
+The `Call` wrapper wraps a function which is called with the current value at
+the path, and its return value is then assigned to the same location.
 
 ```javascript
-import { assignPath, Call } from 'movium'
+import { patch, Call } from 'movium'
 
 let nums = { x: 1, y: 1, z: 2 }
 let inc = x => x + 1
-nums = assignPath(['x', Call.val(inc)])
+nums = patch(['x', Call.val(inc)])
 // => { x: 2, y: 1, z: 2 }
 ```
 
-The `Merge` wrapper will merge the existing value with the new value. If 
-there is no existing value, the new value is simply assigned. See the 
-documentation for the `merge()` function for more information on how the 
-merge is intended to work.
+The `Merge` wrapper will merge the existing value with the new value. If there
+is no existing value, the new value is simply assigned. See the documentation
+for the `merge()` function for more information on how the merge is intended to
+work.
 
 ```javascript
-import { assignPath, Merge } from 'movium'
+import { patch, Merge } from 'movium'
 
 let props = { style: { border: 0 }}
-props = assignPath([
+props = patch([
   'style', 
   Merge.val({ height: '12px', display: 'inline-block' })
 ], props)
 // => { style: { border: 0, height: '12px', display: 'inline-block' } } 
 ```
+
+It's important to note that if the
+
+## using(expressions, f)
+
+This function simply calls a function `f` with a values in the `expression`
+array.
+
+To explain what problem this solves, let's first take a look at the following
+example:
+
+```javascript
+import { div, button, disabled } from 'movium'
+
+let someExpensiveOperation = () => { /* ... */ }
+
+let view = model => (
+  div(['menu'],
+    button([disabled(someExpensiveOperation())], 'First option'),
+    button([disalbed(someExpensiveOperation())], 'Second option'),
+  )
+)
+```
+
+We do not want to repeatedly call `someExpensiveOperation()`, so we need assign
+it to a variable:
+
+```javascript
+import { div, button, disabled } from 'movium'
+
+let someExpensiveOperation = model => { /* ... */ }
+
+let view = model => {
+  let isDisabled = someExpensiveOperation(model)
+  
+  return (
+    div(['menu'],
+      button([disabled(isDisalbed)], 'First option'),
+      button([disalbed(isDisabled)], 'Second option'),
+    )
+  )
+}
+```
+
+There is nothing wrong with the solution. However, the curly braces and
+the `return` statement may be an eye-sore for some. For a slight stylistic
+variation, we can rewrite the last example using the `using()` function:
+
+```javascript
+import { div, button, disabled, using } from 'movium'
+
+let someExpensiveOperation = model => { /* ... */ }
+
+let view = model => using(
+  [someExpensiveOperation(model)],
+  isDisabled => (
+    div(['menu'],
+      button([disabled(isDisalbed)], 'First option'),
+      button([disalbed(isDisabled)], 'Second option'),
+    )
+  )
+)
+```
+
+An alternative to `using()` is an immediately invoked function expression with
+default argument values:
+
+```javascript
+import { div, button, disabled, using } from 'movium'
+
+let someExpensiveOperation = model => { /* ... */ }
+
+let view = model => ((isDisabled = someExpensiveOperation(model)) => (
+  div(['menu'],
+    button([disabled(isDisalbed)], 'First option'),
+    button([disalbed(isDisabled)], 'Second option'),
+  )
+))()
+```
+
+If you don't mind the extra parentheses, this is a valid, and very slightly more
+efficient, solution for avoiding the `return` statement.
 
 ## See also
 

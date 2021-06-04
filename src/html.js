@@ -1,6 +1,6 @@
 import { h } from 'snabbdom'
 import { match, when } from './patternMatching'
-import { Append, assignPath, Call, id, partial, valueOf } from './tools'
+import { Append, Call, id, partial, patch, valueOf } from './tools'
 import { Any, is, Type, val } from './types'
 
 let el = name => (props = null, ...children) => updater => {
@@ -11,7 +11,7 @@ let el = name => (props = null, ...children) => updater => {
     if (p == null) continue
     if (typeof p === 'string') p = className(p, true)
     if (typeof p === 'function') p = p(updater)
-    if (is(Array, p)) propsObj = assignPath(p, propsObj)
+    if (is(Array, p)) propsObj = patch(p, propsObj)
   }
 
   for (let c of children.flat(3)) {
@@ -151,7 +151,7 @@ let className = (classes, use = true) => [
         when(Destroy, () => ['destroy']),
         when(Any, () => []),
       )
-      return valueOf(classes).split(' ').reduce((out, name) => assignPath(prefix.concat([name, use]), out), cls)
+      return valueOf(classes).split(' ').reduce((out, name) => patch(prefix.concat([name, use]), out), cls)
     },
   ),
 ]

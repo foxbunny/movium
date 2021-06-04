@@ -8,7 +8,6 @@
 * [scope(proto, view)](#scopeproto-view)
 * [Msg](#msg)
 * [Task](#task)
-* [DoNothing](#donothing)
 * [isMsg(proto, x)](#ismsgproto-x)
 * [inMsgs(protos, x)](#inmsgsprotos-x)
 * [delegate(f, msg, modelOrTask)](#delegatef-msg-modelortask)
@@ -321,13 +320,6 @@ let update = (msg, model) => match(msg,
   )),
 )
 ```
-
-## DoNothing
-
-This is a prototype that can be used in update functions to signal that we want
-to abort the update.
-
-To abort the update, we simply return `DoNothing` instead of the model.
 
 ## isMsg(proto, x)
 

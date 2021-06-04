@@ -7,6 +7,7 @@ let valueOf = x => is(ValueObject, x) ? x.value : x
 let partial = (f, ...args) => f.bind(undefined, ...args)
 let tap = (f, x) => (f(x), x)
 let log = partial(tap, x => console.log(x))
+let using = (expressions, fn) => fn(...expressions)
 
 let Append = Type.of()
 let Call = Type.of()
@@ -39,13 +40,17 @@ let merge = (x, y) => match(x,
   when(Any, () => y),
 )
 
-// ([...String, T], U) -> U
-let assignPath = (path, x) => {
+// ([...(String|Number), T], U) -> U
+let patch = (path, x) => {
   path = path.slice()
-  x = copy(x)
 
-  let p = valueOf(x)
+  // Object that we will return in the end
+  let y = copy(x)
 
+  // Reference to the current part of the object
+  let p = valueOf(y)
+
+  // Keep drilling into the object until the past pair
   while (path.length > 2) {
     let k = path.shift()
     let v = has(k, p) ? copy(p[k]) : {}
@@ -54,7 +59,7 @@ let assignPath = (path, x) => {
 
   let [k, v] = path
 
-  p[k] = match(v,
+  let w = match(v,
     when(Append, v => match(p[k],
       when(Array, () => [...p[k], v]),
       when(Void, () => v),
@@ -65,7 +70,10 @@ let assignPath = (path, x) => {
     when(Any, () => v),
   )
 
-  return x
+  if (w === p[k]) return x
+
+  p[k] = w
+  return y
 }
 
 export {
@@ -77,8 +85,9 @@ export {
   id,
   partial,
   log,
+  using,
   tap,
   copy,
   merge,
-  assignPath,
+  patch,
 }

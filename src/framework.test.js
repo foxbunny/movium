@@ -1,6 +1,5 @@
-import { delegate, DoNothing, inMsgs, Msg, render, scope, Task } from './framework'
+import { delegate, inMsgs, Msg, render, scope, Task } from './framework'
 import { div, onClick } from './html'
-import { request } from './http'
 import { match, when } from './patternMatching'
 import { id } from './tools'
 
@@ -165,13 +164,13 @@ describe('render', () => {
     })
   })
 
-  test('do not re-render if DoNothing model is received', done => {
+  test('do not re-render if model is the same as before', done => {
     let root = document.createElement('div')
 
     let init = () => 'model'
     let MyMsg = Msg.of({ testLabel: 'test' })
-    let update = jest.fn((msg, model) => DoNothing)
-    let view = jest.fn(model => (
+    let update = jest.fn((msg, model) => model)
+    let view = jest.fn(() => (
       div([onClick(MyMsg)], 'Hello, test')
     ))
 
