@@ -1,0 +1,15 @@
+.editable-text {
+}
+
+.editable-text-input,
+.editable-text-display {
+  display: none;
+}
+
+.editable-text-display {
+  cursor: pointer;
+}
+
+.editable-text-active {
+  display: inline-block;
+}

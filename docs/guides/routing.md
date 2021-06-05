@@ -245,4 +245,4 @@ let view = model => (
 
 ## See also
 
-- [Extending Movium](./extending-movium.md)
+- [Widgets](./widgets.md)

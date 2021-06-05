@@ -13,6 +13,7 @@ let examples = [
   'theming',
   'routing',
   'debouncing',
+  'non-mvu-widgets',
 ]
 
 module.exports = {
