@@ -3,7 +3,7 @@
 - Versions and features marked with 💣 are backwards-incompatible.
 - Semver is not observed prior to version 1.0.0.
 - Until version 1.0.0, the author **will** be liberal with breaking changes 
-  due to flesh out the API as early as possible.
+  to flesh out the API as early as possible.
   
 # 0.4.0 💣
 
