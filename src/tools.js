@@ -76,6 +76,8 @@ let patch = (path, x) => {
   return y
 }
 
+let randId = () => Math.random().toString(36).slice(2)
+
 export {
   Append,
   Call,
@@ -90,4 +92,5 @@ export {
   copy,
   merge,
   patch,
+  randId,
 }

@@ -21,6 +21,7 @@ this purpose.
   * [Styles](#styles)
   * [Event listeners](#event-listeners)
     * [Manual event handling](#manual-event-handling)
+    * [Event modifiers](#event-modifiers)
     * [Outside events](#outside-events)
     * [Document events](#document-events)
     * [Window events](#window-events)
@@ -333,7 +334,7 @@ argument to `onClick()`, The second argument should be a function. The function
 will receive the `Event` object, and whatever it returns will be used as the
 value of the value object emitted as a message.
 
-This is the full list of event listener properties that can (currently) be used:
+Here is the full list of event listener properties that can (currently) be used:
 
 - `onClick` - default value: `Event` object
 - `onInput` - default value: value of an input or element's inner text since
@@ -394,6 +395,9 @@ and an updater function that can be called with a message object. We are
 therefore still able to emit messages, but it can be done conditionally, or with
 a delay, or any number of different ways we choose.
 
+In this example, we will implement `debounced()` manually to see how manual
+event handling works:
+
 ```javascript
 // WARNING: quick hack for demo purposes
 import { Msg, div, onClick, id } from 'movium'
@@ -416,6 +420,56 @@ let debounced = (msg, getter, delay = 200) => (_, vnode, update) => {
 }
 
 div([onClick(debounced(Foo, id))])
+```
+
+**NB:** see Event modifiers for a built-in `debounced()` function that 
+handles some edge cases and provides more flexibility.
+
+#### Event modifiers
+
+There are several event modifiers that can be used to change the default 
+behavior of the event handler. These are functions that wrap the first 
+argument to the event listener properties:
+
+- `prevented` - calls [`event.preventDefault()`](https://mzl.la/3g5xha8)
+- `noPropagation` - calls [`event.stopPropagation()`](https://mzl.la/34Oy2iq)
+- `debounced` - debounces the event handler
+
+For example, to prevent default:
+
+```javascript
+import { button, onClick, prevented, Msg } from 'movium'
+
+let Cancel = Msg.of()
+
+button([onClick(prevented(Cancel))], 'Cancel')
+```
+
+In some cases, we want to limit the rate at which the events trigger. One of 
+the standard methods for doing this is debouncing. Debouncing suspends the 
+event handling until some time has passed since the last event, and then 
+handles only the last event. This is useful when a high-rate event (e.g., 
+typing or dragging) results in an expensive operation (e.g., rendering 
+a chart or performing HTTP requests).
+
+```javascript
+import { debounced, onInput, input, Msg } from 'movium'
+
+let SetText = Msg.of()
+
+input([onInput(debounced(200, SetText))])
+```
+
+The message prototype passed to the modifiers can be functions just like 
+with the normal event listener properties (see Manual event handling). This 
+means that we can combine multiple modifiers:
+
+```javascript
+import { debounced, onInput, input, Msg, prevented } from 'movium'
+
+let SetText = Msg.of()
+
+input([onInput(prevented(debounced(200, SetText)))])
 ```
 
 #### Outside events

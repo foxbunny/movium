@@ -1,6 +1,6 @@
 import { h } from 'snabbdom'
 import { match, when } from './patternMatching'
-import { Append, Call, id, partial, patch, valueOf } from './tools'
+import { Append, Call, id, partial, patch, randId, using, valueOf } from './tools'
 import { Any, is, Type, val } from './types'
 
 let el = name => (props = null, ...children) => updater => {
@@ -205,9 +205,8 @@ let nextFrame = f => (update, ...args) =>
 // Event -> String
 let codeGetter = ev => ev.code
 
-// String -> (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
 let eventListener = key => (eventName, valueGetter) => (proto, f = valueGetter) => match(proto,
-  when(Function, () => update => [key, eventName, Append.val((...args) => proto(...args, update))]),
+  when(Function, () => update => [key, eventName, Append.val((ev, vnode) => proto(f(ev), ev, vnode, update))]),
   when(Any, () => update => [key, eventName, Append.val(ev => update(val(proto, f(ev))))]),
 )
 let whenKeyMatches = (code, f) => (ev, ...args) => {
@@ -217,7 +216,7 @@ let whenKeyMatches = (code, f) => (ev, ...args) => {
 }
 let shortcutListener = key => (code, proto, f = codeGetter) => match(proto,
   when(Function, () => update =>
-    [key, 'keydown', Append.val(whenKeyMatches(code, (...args) => proto(...args, update)))]),
+    [key, 'keydown', Append.val(whenKeyMatches(code, (ev, ...args) => proto(f(ev), ev, ...args, update)))]),
   when(Any, () => update =>
     [key, 'keydown', Append.val(whenKeyMatches(code, ev => update(val(proto, f(ev)))))])
 )
@@ -288,8 +287,38 @@ let onPopstate = windowListener('popstate', () => window.location)
 let onResize = windowListener('resize', id)
 let onOrientationChange = windowListener('orientationchange', id)
 
-let prevent = event => (event.preventDefault(), event)
-let stopPropagation = event => (event.stopPropagation(), event)
+let createHandler = proto => match(proto,
+  when(Function, () => proto),
+  when(Any, () => (x, _1, _2, update) => update(val(proto, x))),
+)
+let debounced = (delay, proto) => using(
+  [createHandler(proto)],
+  handler => {
+    let cb = (x, ev, vnode, update) => {
+      clearTimeout(vnode.elm[`__DEBOUNCE_TIMER_${cb.id}__`])
+      vnode.elm[`__DEBOUNCE_TIMER_${cb.id}__`] = setTimeout(
+        () => handler(x, ev, vnode, update),
+        delay
+      )
+    }
+    cb.id = randId()
+    return cb
+  }
+)
+let prevented = proto => using(
+  [createHandler(proto)],
+  handler => (x, ev, vnode, update) => {
+    ev.preventDefault()
+    return handler(x, ev, vnode, update)
+  }
+)
+let noPropagation = proto => using(
+  [createHandler(proto)],
+  handler => (x, ev, vnode, update) => {
+    ev.stopPropagation()
+    return handler(x, ev, vnode, update)
+  }
+)
 
 export {
   a,
@@ -499,5 +528,7 @@ export {
   onResize,
   onOrientationChange,
 
-  prevent,
+  debounced,
+  prevented,
+  noPropagation,
 }

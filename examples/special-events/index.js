@@ -9,7 +9,7 @@ import {
   onMouseDownOutside,
   p,
   patch,
-  prevent,
+  prevented,
   render,
   style,
   when,
@@ -47,7 +47,7 @@ let view = model => (
     model.messageShown
       ? div([
         'inner',
-        onMouseDownOutside(ChangeBorderColor, prevent),
+        onMouseDownOutside(prevented(ChangeBorderColor)),
         onKeyDocument('Space', ChangeBorderColor),
       ],
       p(['message'],

@@ -1,4 +1,4 @@
-import { div, id, input, match, Msg, onInput, p, render, value, when } from 'movium'
+import { debounced, div, id, input, match, Msg, onInput, p, render, value, when } from 'movium'
 
 // MODEL
 
@@ -14,16 +14,11 @@ let update = msg => match(msg,
 
 // VIEW
 
-let debounced = msg => (ev, vnode, updater) => {
-  clearTimeout(vnode.elm.lastCall)
-  vnode.elm.lastCall = setTimeout(() => updater(msg.val(ev.target.value)), 300)
-}
-
 let view = model => (
   div([],
     p([], 'You typed: ', model),
     p([],
-      input([value(model), onInput(debounced(SetText))])
+      input([value(model), onInput(debounced(300, SetText))])
     ),
   )
 )
