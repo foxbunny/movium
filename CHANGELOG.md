@@ -4,6 +4,25 @@
 - Semver is not observed prior to version 1.0.0.
 - Until version 1.0.0, the author **will** be liberal with breaking changes 
   due to flesh out the API as early as possible.
+  
+# 0.4.0 💣
+
+- Expand event handlers so that plain functions can be used in place of messages
+- Export functions for creating custom event handlers
+- Add special events on the `window` object via `on*Window()` event listener 
+  props and new `windowEventListeners` Snabbdom module
+- Add `onHashchange()`, `onPopstate()`, `onResize()`, 
+  `onOrientationChange()`, and `onScroll()` event listener props
+- Extend `is()` to be able to match `undefined` and `null` by using them as the 
+  type rather than having to use `Undefined` and `Null` (although the latter 
+  can still be used)
+- Add `prevented()`, `noPropagation()` and `debounced()` event modifiers
+- 💣 Removed `prevent()` and `stopPropagation()`
+- Cleaned up examples, and added examples for the debouncing, routing, and 
+  non-MVU widgets
+- Expanded the documentation to cover new features, and also routing and widgets
+- Expanded the documentation to cover initializing the state asynchronously 
+  in the Async tasks chapter
 
 # 0.3.0 💣
 
