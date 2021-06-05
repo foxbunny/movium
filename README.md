@@ -96,6 +96,7 @@ functions section.
 - [Quick start](./docs/guides/quick-start.md)
 - [Composing modules](./docs/guides/composing-modules.md)
 - [Async tasks](./docs/guides/async-tasks.md)
+- [Routing](./docs/guides/routing.md)
 - [Extending Movium](./docs/guides/extending-movium.md)
 
 ### Example code
