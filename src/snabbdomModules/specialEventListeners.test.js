@@ -4,6 +4,7 @@ import { renderToDOM } from '../__test__/snabbdom'
 describe.each([
   'onOutside',
   'onDocument',
+  'onWindow',
 ])(
   'event using %s',
   (property) => {
@@ -109,7 +110,7 @@ describe.each([
     })
   })
 
-describe('documentEventListners', () => {
+describe('documentEventListeners', () => {
   afterEach(() => {
     document.body.innerHTML = ''
   })

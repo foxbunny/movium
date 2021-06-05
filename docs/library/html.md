@@ -20,6 +20,11 @@ this purpose.
     * [Transitions using classes](#transitions-using-classes)
   * [Styles](#styles)
   * [Event listeners](#event-listeners)
+    * [Manual event handling](#manual-event-handling)
+    * [Outside events](#outside-events)
+    * [Document events](#document-events)
+    * [Window events](#window-events)
+    * [Creating other event listener props](#creating-other-event-listener-props)
   * [Other properties](#other-properties)
   * [Element lifecycle hooks](#element-lifecycle-hooks)
 * [See also](#see-also)
@@ -138,13 +143,13 @@ let myDiv = (
 Functions like `div()` return a function rather than a virtual node instance.
 The returned function is called with an updater function and returns a virtual
 node. Because of this, it is possible to create custom elements that take any
-arguments you like and return virtual nodes (see [extending
-Movium](../guides/extending-movium.md#custom-elements)).
+arguments you like and return virtual nodes (
+see [extending Movium](../guides/extending-movium.md#custom-elements)).
 
 ## Element properties
 
 Like elements, properties are also functions (the only example is a class, which
-can also be a string). They are specified as a array and passed to the element
+can also be a string). They are specified as an array and passed to the element
 function as the first argument.
 
 Here is an example using a few properties.
@@ -346,10 +351,11 @@ This is the full list of event listener properties that can (currently) be used:
 - `onKeydown` - default value: [key code](https://mzl.la/2REMHtL)
 - `onKeypress` - default value: [key code](https://mzl.la/2REMHtL)
 - `onKey` - default value: [key code](https://mzl.la/2REMHtL)
+- `onScroll` - default value: `Event` object
 
-The `onKey` event listener property is a non-standard event that allows us 
-to quickly bind keyboard shortcuts. It takes an additional (first) argument 
-which is the key code. For example:
+The `onKey` event listener property is a non-standard event that allows us to
+quickly bind keyboard shortcuts. It takes an additional (first) argument which
+is the key code. For example:
 
 ```javascript
 import { textarea, onKey, Msg } from 'movium'
@@ -361,13 +367,52 @@ let myText = textarea([onKey('Escape', Cancel)])
 
 **NOTE:** There is currently no support for modifier keys.
 
-In addition to the usual event listeners, Movium supports another two sets 
-of listeners that handle events that happen outside the target element or at 
-the document level. These listeners are named the same way as the normal 
-listeners except that they suffxied with 'Outside' and 'Document', and they 
-only support a subset of event listeners that can be used on the elements.
+In addition to the usual event listeners, Movium supports another several sets
+of listeners that handle events that happen outside the target element or at the
+document/window level. These listeners are named the same way as the normal
+listeners except that they suffixed with 'Outside', 'Document', or 'Window'
+(with a few exceptions), and they only support a subset of event listeners that
+can be used on the elements. These are discussed later.
 
-The 'outside' event listeners are triggered only when the event target is 
+#### Manual event handling
+
+We can still handle events manually and do things other than emit messages
+(or both). If, instead of a message prototype, we pass a function to the event
+listener property, then this function will be called as usual.
+
+Here's an example:
+
+```javascript
+import { textarea, onKey, Msg } from 'movium'
+
+let myText = textarea([onKey('Escape', () => alert('You pressed Escape')])
+```
+
+The handler function will receive the `Event` object for the event, a Snabbdom
+virtual node object for the element on which the event was triggered (if any),
+and an updater function that can be called with a message object. We are
+therefore still able to emit messages, but it can be done conditionally, or with
+a delay, or any number of different ways we choose.
+
+```javascript
+// WARNING: quick hack for demo purposes
+import { Msg, div, onClick, id } from 'movium'
+
+let Foo = Msg.of()
+
+let debounced = (msg, getter, delay = 200) => (_, vnode, update) => {
+  let now = Date.now()
+  let lastCall = vnode.elm.lastCall
+  if (now - lastCall > delay) update(Foo)
+  vnode.elm.lastcall = now
+}
+
+div([onClick(debounced(Foo, id))])
+```
+
+#### Outside events
+
+The 'outside' event listeners are triggered only when the event target is
 outside the element. These are:
 
 - `onClickOutside`
@@ -392,10 +437,12 @@ let Close = Msg.of()
 let myDialog = div(['dialog', onClickOutside(Close)])
 ```
 
-The 'document' event listeners are triggered when an event bubbles up to the 
-`document.body` element, regardless of whether the target is inside or 
-outside the element:
-  
+#### Document events
+
+The 'document' event listeners are triggered when an event bubbles up to the
+`document.body` element, regardless of whether the target is inside or outside
+the element:
+
 - `onClickDocument`
 - `onMouseDownDocument`
 - `onMouseMoveDocument`
@@ -418,9 +465,62 @@ let Close = Msg.of()
 let myDialog = div(['dialog', onKeyDocument('Escape', Close)])
 ```
 
+#### Window events
+
+'Window' events are triggered on the `window` object. These are:
+
+- `onClickWindow`
+- `onMouseDownWindow`
+- `onMouseMoveWindow`
+- `onMouseUpWindow`
+- `onTouchStartWindow`
+- `onTouchMoveWindow`
+- `onTouchEndWindow`
+- `onKeydownWindow`
+- `onKeyupWindow`
+- `onKeypressWindow`
+- `onKeyWindow`
+- `onScrollWindow`
+
+There are a few more that do not have the 'Window' suffix because they can only
+ever be triggered on the `window` object:
+
+- `onHashchange` - default value: `window.location.hash`
+- `onPopstate` - default value: `window.location`
+- `onResize` - default value: `Event` object
+- `onOrientationChange` - default value: `Event` object
+
+#### Creating other event listener props
+
+Movium provides several functions for creating different types of event
+Listeners for events that are not provided out of the box:
+
+- `elementListener` - creates a normal event listener property
+- `outsideListener` - creates an outside event listener property
+- `documentListener` - creates a document event listener property
+- `windowListener` - creates a window event listener property
+
+These functions all create property functions that behave just like the
+`onClick()`, `onKeyDocument()` and the rest.
+
+To create a new listener property, we call one of the functions and pass it the
+event name as the first argument, and the default value getter as the second.
+For example, let's say we want to handle a listener for the drop event that
+happens on the element:
+
+```javascript
+import { elementListener, Msg, div, id } from 'movium'
+
+let onDrop = elementListener('drop', id)
+
+let Dropped = Msg.of()
+
+div([onDrop(Dropped)])
+```
+
 ### Other properties
 
-Other properties have their usual semantic. Here's a short list of supported 
+Other properties have their usual semantic. Here's a short list of supported
 properties:
 
 - `value`
@@ -437,17 +537,19 @@ properties:
 - `alt`
 - `title`
 
-For any other property, we can use the `prop()` function, which takes a 
-property name and a value.
+To add other properties, we can either use the `prop(name, value)` function, or
+even simply use an array `['props', name, value]`. There is no difference
+between these two methods as `prop()` is simply a shortcut for creating the
+latter.
 
 ### Element lifecycle hooks
 
-Because elements in Movium are virtual DOM nodes (and more specifically, 
-Snabbdom virtual DOM nodes), it is possible to hook into the nodes' 
-lifecycle hooks.
+Because elements in Movium are virtual DOM nodes (and more specifically,
+Snabbdom virtual DOM nodes), it is possible to hook into the nodes' lifecycle
+hooks.
 
-Virtual DOM nodes are replaced by a process called patching. In this process,
-a copy of the existing virtual node is compared with a new node created in the
+Virtual DOM nodes are replaced by a process called patching. In this process, a
+copy of the existing virtual node is compared with a new node created in the
 view, and the difference between them is calculated. This difference is then
 applied to the actual DOM in the browser. This process has several stages, and
 we are able to hook into all of them:
@@ -465,9 +567,9 @@ we are able to hook into all of them:
 
 To hook into the stages, we use hook properties. All hook properties expect a
 callback function as its only argument. This function is called when the
-appropraite stage is reached, and it receives the updater function (function
-used to emit messages) and possibly a number of other arguments depending on
-the stage. 
+appropriate stage is reached, and it receives the updater function (function
+used to emit messages) and possibly a number of other arguments depending on the
+stage.
 
 The following is a list of supported hook properties with a list of arguments a
 callback can expect:
@@ -485,11 +587,11 @@ callback can expect:
 
 Generally speaking, lifecycle hooks are not used very often. For example,
 although the 'init' and 'insert' hooks can be used to send a message that
-intializes the application state from server-side data, for example, the same
-can be achieved by returning a `Task` from the `init` function (see [async
-tasks](./async-tasks.md)). For more complex functionality such as integration
-with a 3rd party library, it's almost always better to create custom modules
-(see [extending Movium](../guides/extending-movium.md)).
+initializes the application state from server-side data, for example, the same
+can be achieved by returning a `Task` from the `init` function (see
+[async tasks](./async-tasks.md)). For more complex functionality such as
+integration with a 3rd party library, it's almost always better to create custom
+modules (see [extending Movium](../guides/extending-movium.md)).
 
 ## See also
 

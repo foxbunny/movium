@@ -1,6 +1,10 @@
 import { eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
 import { classModule } from '../snabbdomModules/classes'
-import { documentEventListeners, outsideEventListeners } from '../snabbdomModules/specialEventListeners'
+import {
+  documentEventListeners,
+  outsideEventListeners,
+  windowEventListeners,
+} from '../snabbdomModules/specialEventListeners'
 
 const DEFAULT_MODULES = [
   classModule,
@@ -9,6 +13,7 @@ const DEFAULT_MODULES = [
   eventListenersModule,
   outsideEventListeners,
   documentEventListeners,
+  windowEventListeners,
 ]
 
 let renderToDOM = (vnode, parentNode, modules = DEFAULT_MODULES) => {

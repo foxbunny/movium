@@ -205,37 +205,43 @@ let nextFrame = f => (update, ...args) =>
 // Event -> String
 let codeGetter = ev => ev.code
 
-// (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
-let listener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
-  ['on', eventName, Append.val(ev => update(val(proto, f(ev))))]
-let onClick = listener('click', id)
-let onInput = listener('input', ev => is(String, ev.target.value) ? ev.target.value : ev.target.innerText)
-let onChange = listener('input', ev => is(String, ev.target.value) ? ev.target.value : ev)
-let onFocus = listener('focus', id)
-let onBlur = listener('blur', id)
-let onMouseDown = listener('mousedown', id)
-let onMouseMove = listener('mousemove', id)
-let onMouseUp = listener('mouseup', id)
-let onTouchStart = listener('touchstart', id)
-let onTouchMove = listener('touchmove', id)
-let onTouchEnd = listener('touchend', id)
-let onKeydown = listener('keydown', codeGetter)
-let onKeyup = listener('keyup', codeGetter)
-let onKeypress = listener('keypress', codeGetter)
-let onKey = (key, type, f = codeGetter) => update =>
-  [
-    'on',
-    'keydown',
-    Append.val(ev => {
-      if (ev.code !== key) return
-      ev.preventDefault()
-      update(val(type, f(ev)))
-    }),
-  ]
+// String -> (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
+let eventListener = key => (eventName, valueGetter) => (proto, f = valueGetter) => match(proto,
+  when(Function, () => update => [key, eventName, Append.val((...args) => proto(...args, update))]),
+  when(Any, () => update => [key, eventName, Append.val(ev => update(val(proto, f(ev))))]),
+)
+let whenKeyMatches = (code, f) => (ev, ...args) => {
+  if (ev.code !== code) return
+  ev.preventDefault()
+  f(ev, ...args)
+}
+let shortcutListener = key => (code, proto, f = codeGetter) => match(proto,
+  when(Function, () => update =>
+    [key, 'keydown', Append.val(whenKeyMatches(code, (...args) => proto(...args, update)))]),
+  when(Any, () => update =>
+    [key, 'keydown', Append.val(whenKeyMatches(code, ev => update(val(proto, f(ev)))))])
+)
+
+let elementListener = eventListener('on')
+let onClick = elementListener('click', id)
+let onInput = elementListener('input', ev => is(String, ev.target.value) ? ev.target.value : ev.target.innerText)
+let onChange = elementListener('input', ev => is(String, ev.target.value) ? ev.target.value : ev)
+let onFocus = elementListener('focus', id)
+let onBlur = elementListener('blur', id)
+let onMouseDown = elementListener('mousedown', id)
+let onMouseMove = elementListener('mousemove', id)
+let onMouseUp = elementListener('mouseup', id)
+let onTouchStart = elementListener('touchstart', id)
+let onTouchMove = elementListener('touchmove', id)
+let onTouchEnd = elementListener('touchend', id)
+let onKeydown = elementListener('keydown', codeGetter)
+let onKeyup = elementListener('keyup', codeGetter)
+let onKeypress = elementListener('keypress', codeGetter)
+let onKey = shortcutListener('on')
+let onScroll = elementListener('scroll', id)
 
 // (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
-let outsideListener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
-  ['onOutside', eventName, Append.val(ev => update(val(proto, f(ev))))]
+let outsideListener = eventListener('onOutside')
 let onClickOutside = outsideListener('click', id)
 let onMouseDownOutside = outsideListener('mousedown', id)
 let onMouseMoveOutside = outsideListener('mousemove', id)
@@ -246,20 +252,11 @@ let onTouchEndOutside = outsideListener('touchend', id)
 let onKeydownOutside = outsideListener('keydown', codeGetter)
 let onKeyupOutside = outsideListener('keyup', codeGetter)
 let onKeypressOutside = outsideListener('keypress', codeGetter)
-let onKeyOutside = (key, type, f = codeGetter) => update =>
-  [
-    'onOutside',
-    'keydown',
-    Append.val(ev => {
-      if (ev.code !== key) return
-      ev.preventDefault()
-      update(val(type, f(ev)))
-    }),
-  ]
+let onKeyOutside = shortcutListener('onOutside')
+let onScrollOutside = outsideListener('scroll', id)
 
 // (String, (Event -> *)) -> (Type, (Event -> *)) -> Update -> *[]
-let documentListener = (eventName, valueGetter) => (proto, f = valueGetter) => update =>
-  ['onDocument', eventName, Append.val(ev => update(val(proto, f(ev))))]
+let documentListener = eventListener('onDocument')
 let onClickDocument = documentListener('click', id)
 let onMouseDownDocument = documentListener('mousedown', id)
 let onMouseMoveDocument = documentListener('mousemove', id)
@@ -270,16 +267,26 @@ let onTouchEndDocument = documentListener('touchend', id)
 let onKeydownDocument = documentListener('keydown', codeGetter)
 let onKeyupDocument = documentListener('keyup', codeGetter)
 let onKeypressDocument = documentListener('keypress', codeGetter)
-let onKeyDocument = (key, type, f = codeGetter) => update =>
-  [
-    'onDocument',
-    'keydown',
-    Append.val(ev => {
-      if (ev.code !== key) return
-      ev.preventDefault()
-      update(val(type, f(ev)))
-    }),
-  ]
+let onKeyDocument = shortcutListener('onDocument')
+let onScrollDocument = documentListener('scroll', id)
+
+let windowListener = eventListener('onWindow')
+let onClickWindow = windowListener('click', id)
+let onMouseDownWindow = windowListener('mousedown', id)
+let onMouseMoveWindow = windowListener('mousemove', id)
+let onMouseUpWindow = windowListener('mouseup', id)
+let onTouchStartWindow = windowListener('touchstart', id)
+let onTouchMoveWindow = windowListener('touchmove', id)
+let onTouchEndWindow = windowListener('touchend', id)
+let onKeydownWindow = windowListener('keydown', codeGetter)
+let onKeyupWindow = windowListener('keyup', codeGetter)
+let onKeypressWindow = windowListener('keypress', codeGetter)
+let onKeyWindow = partial(shortcutListener, 'onWindow')
+let onScrollWindow = windowListener('scroll', id)
+let onHashchange = windowListener('hashchange', () => window.location.hash)
+let onPopstate = windowListener('popstate', () => window.location)
+let onResize = windowListener('resize', id)
+let onOrientationChange = windowListener('orientationchange', id)
 
 let prevent = event => (event.preventDefault(), event)
 let stopPropagation = event => (event.stopPropagation(), event)
@@ -431,6 +438,7 @@ export {
   alt,
   title,
 
+  elementListener,
   onClick,
   onInput,
   onChange,
@@ -447,6 +455,7 @@ export {
   onKeypress,
   onKey,
 
+  outsideListener,
   onClickOutside,
   onMouseDownOutside,
   onMouseMoveOutside,
@@ -459,6 +468,7 @@ export {
   onKeypressOutside,
   onKeyOutside,
 
+  documentListener,
   onClickDocument,
   onMouseDownDocument,
   onMouseMoveDocument,
@@ -470,6 +480,24 @@ export {
   onKeyupDocument,
   onKeypressDocument,
   onKeyDocument,
+
+  windowListener,
+  onClickWindow,
+  onMouseDownWindow,
+  onMouseMoveWindow,
+  onMouseUpWindow,
+  onTouchStartWindow,
+  onTouchMoveWindow,
+  onTouchEndWindow,
+  onKeydownWindow,
+  onKeyupWindow,
+  onKeypressWindow,
+  onKeyWindow,
+  onHashchange,
+  onPopstate,
+  onScroll,
+  onResize,
+  onOrientationChange,
 
   prevent,
 }

@@ -1,7 +1,11 @@
 import { eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
 import { match, when } from './patternMatching'
 import { classModule } from './snabbdomModules/classes'
-import { documentEventListeners, outsideEventListeners } from './snabbdomModules/specialEventListeners'
+import {
+  documentEventListeners,
+  outsideEventListeners,
+  windowEventListeners,
+} from './snabbdomModules/specialEventListeners'
 import { valueOf } from './tools'
 import { Any, is, Type, val } from './types'
 
@@ -36,6 +40,7 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
     eventListenersModule,
     outsideEventListeners,
     documentEventListeners,
+    windowEventListeners,
     ...snabbdomModules,
   ])
 
