@@ -45,9 +45,11 @@ describe('is', () => {
     [null, Void],
     [null, Null],
     [null, Primitive],
+    [null, null],
     [undefined, Void],
     [undefined, Undefined],
     [undefined, Primitive],
+    [undefined, undefined],
     [Symbol('test'), Symbol],
     [Symbol('test'), Primitive],
     [/abc/, RegExp],
@@ -121,6 +123,18 @@ describe('is', () => {
     expect(is(Bar, baz)).toBe(true)
     expect(is(Foo, baz)).toBe(true)
   })
+
+  test.each([
+    [1, ''],
+    [null, {}],
+    [false, 'str'],
+    [/regex/, 1],
+  ])(
+    'test non-match against primitive value like %s',
+    (t, x) => {
+      expect(is(t, x)).toBe(false)
+    }
+  )
 })
 
 
