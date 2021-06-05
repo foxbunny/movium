@@ -2,14 +2,6 @@ import { div, GET, HttpError, HttpResult, jsonResponse, li, match, Msg, render, 
 
 // MODEL
 
-let getData = () => fetch('/data.json')
-  .then(res => {
-    if (!res.ok) throw Error('Could not fetch data')
-    return res.json()
-  })
-  .then(content => ({ data: content.data, error: null }))
-  .catch(error => ({ data: [], error }))
-
 let Loading = Type.of()
 let Loaded = Type.of()
 let Error = Type.of()
