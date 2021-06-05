@@ -11,6 +11,7 @@ let examples = [
   'initial-load',
   'css-transitions',
   'theming',
+  'routing',
 ]
 
 module.exports = {
