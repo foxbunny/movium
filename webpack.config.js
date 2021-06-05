@@ -12,6 +12,7 @@ let examples = [
   'css-transitions',
   'theming',
   'routing',
+  'debouncing',
 ]
 
 module.exports = {

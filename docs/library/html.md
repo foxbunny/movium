@@ -400,6 +400,14 @@ import { Msg, div, onClick, id } from 'movium'
 
 let Foo = Msg.of()
 
+let debounced = (msg, getter, delay = 200) => (ev, vnode, updater) => {
+  clearTimeout(vnode.elm.lastCall)
+  vnode.elm.lastCall = setTimeout(
+    () => updater(msg.val(getter(ev)), 
+    delay
+  )
+}
+
 let debounced = (msg, getter, delay = 200) => (_, vnode, update) => {
   let now = Date.now()
   let lastCall = vnode.elm.lastCall
