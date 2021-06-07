@@ -5,6 +5,12 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes 
   to flesh out the API as early as possible.
   
+# 0.5.0 💣
+
+- 💣 Make response body (instead of status code) available through the 
+  `HttpBadResponse` value objects; status can be accessed via its `status` 
+  property
+  
 # 0.4.1
 
 - Ensure no-render is performed when task returns a model that is identical 
