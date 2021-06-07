@@ -5,6 +5,11 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes 
   to flesh out the API as early as possible.
   
+# 0.4.1
+
+- Ensure no-render is performed when task returns a model that is identical 
+  to the previous one.
+  
 # 0.4.0 💣
 
 - Expand event handlers so that plain functions can be used in place of messages
