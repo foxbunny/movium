@@ -1,12 +1,12 @@
 import { eventListenersModule, init as initPatch, propsModule, styleModule } from 'snabbdom'
-import { match, when } from './patternMatching'
+import { match, when, whenRaw } from './patternMatching'
 import { classModule } from './snabbdomModules/classes'
 import {
   documentEventListeners,
   outsideEventListeners,
   windowEventListeners,
 } from './snabbdomModules/specialEventListeners'
-import { valueOf } from './tools'
+import { id, valueOf } from './tools'
 import { Any, is, Type, val } from './types'
 
 let Msg = Type.of()
@@ -45,14 +45,14 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   ])
 
   let oldVnode = rootNode
-  let model = init()
+  let model = null
   let rendering = false
-  let renderView = () => {
+  let renderView = (newModel) => {
     // Render the view on next frame to avoid recursion due to synchronous
     // execution.
     requestAnimationFrame(() => {
       rendering = true
-      model = match(model,
+      newModel = match(newModel,
         when(Task, t => {
           t.work
             .then(
@@ -61,8 +61,11 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
             )
           return t.model
         }),
-        when(Any, () => model),
+        whenRaw(Any, id),
       )
+
+      if (newModel === model) return
+      model = newModel
 
       try {
         let newVnode = view(model)(updater)
@@ -83,20 +86,18 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
       return
     }
 
-    let currentModel = model
-
+    let newModel
     try {
-      model = update(msg, model)
+      newModel = update(msg, model)
     } catch (e) {
       console.error(`Error ${e} while handling message`)
       console.error(msg)
       console.trace(e)
       return
     }
-    if (model === currentModel) return
-    renderView()
+    renderView(newModel)
   }
-  renderView()
+  renderView(init())
 }
 
 export {
