@@ -1,15 +1,20 @@
 import {
   DELETE,
   GET,
+  HttpError,
+  HttpInvalidRequest,
   HttpRequest,
+  HttpRequestError,
+  HttpResponse,
+  HttpResult,
   JSONData,
-  XFormData,
+  jsonResponse,
   MultipartData,
   PATCH,
   POST,
   PUT,
-  jsonResponse,
-  HttpResult, HttpError, HttpRequestError, HttpResponse, textResponse, HttpInvalidRequest,
+  textResponse,
+  XFormData,
 } from './http'
 import { is } from './types'
 
@@ -156,7 +161,23 @@ describe('jsonResponse', () => {
         expect(is(HttpResponse, result)).toBe(true)
         expect(is(HttpError, result)).toBe(true)
         expect(is(HttpInvalidRequest, result)).toBe(true)
-        expect(result.value).toBe(400)
+        expect(result.status).toEqual(400)
+        expect(result.value).toEqual({ foo: 'bar' })
+      })
+      .then(done)
+  })
+
+  test('expect error with wrong type of response', (done) => {
+    fetch.mockResponseOnce('plain text', { status: 400 })
+
+    GET('http://example.com/')
+      .expect(jsonResponse)
+      .then(result => {
+        expect(is(HttpResponse, result)).toBe(true)
+        expect(is(HttpError, result)).toBe(true)
+        expect(is(HttpInvalidRequest, result)).toBe(true)
+        expect(result.status).toEqual(400)
+        expect(result.value).toEqual(undefined)
       })
       .then(done)
   })

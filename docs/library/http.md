@@ -17,8 +17,7 @@ provides an out-of-the-box solution for performing HTTP requests.
 
 ## Creating requests
 
-Requests are made using one of the five functions that correspond to HTTP
-verbs:
+Requests are made using one of the five functions that correspond to HTTP verbs:
 
 - `GET(url, options)`
 - `POST(url, data, options)`
@@ -36,8 +35,8 @@ import { GET } from 'movium'
 let request = GET('/test')
 ```
 
-When making POST/PUT/PATCH/DELETE requests, the `data` parameter can be a
-value object creating one of the Movium's built-in prototypes:
+When making POST/PUT/PATCH/DELETE requests, the `data` parameter can be a value
+object creating one of the Movium's built-in prototypes:
 
 - `JSONData` - JSON data
 - `XFormData` - URL-encoded form data
@@ -54,8 +53,8 @@ import { POST, JSONData } from 'movium'
 let request = POST('/test', JSONData.val({ foo: 'bar' }))
 ```
 
-Alternatively, `data` can be a manually encoded object of any type supported by 
-the `body` parameter in `fetch()`, or `undefined` if request data should be 
+Alternatively, `data` can be a manually encoded object of any type supported by
+the `body` parameter in `fetch()`, or `undefined` if request data should be
 omitted.
 
 The `options` object passed to each of the HTTP functions is the usual init
@@ -75,11 +74,11 @@ let request = POST('/test', JSONData.val({ foo: 'bar' }), {
 ## Obtaining a response
 
 In order to execute the request, we need to 'expect' a result. So-called
-expecters are functions that will process the response with different 
+expecters are functions that will process the response with different
 assumptions based on the function used. Movium provides two expecters: one for
-JSON responses, and one for text responses. Expecters are passed to the 
-request by calling the `expect()` method on the request object. This returns a
-promise that will resolve to the result of the request.
+JSON responses, and one for text responses. Expecters are passed to the request
+by calling the `expect()` method on the request object. This returns a promise
+that will resolve to the result of the request.
 
 ```javascript
 import { GET, jsonResponse } from 'movium'
@@ -94,10 +93,11 @@ GET('/test').expect(jsonResponse)
 
 The result of executing a HTTP request is either a `HttpResult` or a
 `HttpError` object. The `HttpError` object can either be a `HttpBadResponse`
-object, which is returned in case of a bad response and contains the status 
-code of the response, or of a `HttpRequestError` subtype which is returned 
-when the request could not be made at all (e.g., could not encode the request 
-data, or network connection error).
+object, which is returned in case of a bad response and contains the status code
+of the response, and the response body if it can be parsed by the expecter, or
+of a `HttpRequestError` subtype which is returned when the request could not be
+made at all (e.g., could not encode the request data, or network connection
+error), and contains an `Error` object.
 
 The `HttpBadResponse` object is further specialized for a subset of HTTP
 response codes:
@@ -114,8 +114,8 @@ response codes:
 
 The rest of the status codes use `HttpBadResponse`.
 
-We typically handle responses by using [pattern
-matching](./pattern-matching.md):
+We typically handle responses by
+using [pattern matching](./pattern-matching.md):
 
 ```javascript
 import { 
@@ -131,16 +131,33 @@ import {
 GET('/test').expect(jsonResponse)
   .then(result => match(result,
     when(HttpResult, data => alert('Got data!')),
-    when(HttpBadResponse, status => alert('Too bad...'))
+    when(HttpBadResponse, data => alert('Too bad...'))
     when(HttpRequestError, () => alert('Please check your connection'))
   ))
 ```
 
+The `HttpError` objects, except the `HttpRequestError`, are value objects that
+contain the parsed response data. If you are handling the more exotic HTTP
+status codes that are not represented by one of the descriptive prototypes, you
+can also access the `status` property on the value object by using
+`whenRaw()` instead of `when()` in the pattern matching:
+
+```javascript
+GET('/test').expect(jsonResponse)
+  .then(result => match(result,
+    when(HttpResult, data => alert('Got data!')),
+    whenRaw(HttpError, resp => alert(resp.status))
+  ))
+```
+
+In cases where the response body cannot be parsed by the expecter, the 
+response body is `undefined` and no errors are thrown.
+
 ## Making requests as tasks
 
 We don't normally use the HTTP functions outside of the update function
-(although there's nothing to stop us from doing so). When using then within
-an update function, we typically use tasks for the purpose:
+(although there's nothing to stop us from doing so). When using then within an
+update function, we typically use tasks for the purpose:
 
 ```javascript
 import { 
@@ -195,7 +212,7 @@ The `RreceiveData` message is sent out once the request is completed, and the
 result is pattern-matched to change the model into either the `Loaded` or
 `Failed` state.
 
-This pattern usually covers most of the common cases. For a cmplete application
+This pattern usually covers most of the common cases. For a small application
 that demonstrates this pattern see [async tasks](../guides/async-tasks.md).
 
 ## See also

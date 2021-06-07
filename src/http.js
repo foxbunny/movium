@@ -1,4 +1,5 @@
 import { match, when } from './patternMatching'
+import { using } from './tools'
 import { Any, Type } from './types'
 
 let HttpRequest = Type.of({
@@ -62,14 +63,19 @@ let PATCH = (url, data, options) => request('PATCH', url, requestOptions(data, o
 let DELETE = (url, data, options) => request('DELETE', url, requestOptions(data, options))
 
 let expecter = getter => promise => promise
-  .then(res => res.ok
-    ? getter(res).then(data => HttpResult.val(data))
-    : (STATUS_PROTOS[res.status] || HttpBadResponse).val(res.status),
+  .then(res => getter(res)
+    .then(data => res.ok
+      ? HttpResult.val(data)
+      : using([STATUS_PROTOS[res.status] || HttpBadResponse], proto => proto.of({
+        status: res.status,
+        value: data,
+      })),
+    ),
   )
   .catch(err => HttpRequestError.val(err))
 
-let jsonResponse = expecter(res => res.json())
-let textResponse = expecter(res => res.text())
+let jsonResponse = expecter(res => res.json().catch(() => {}))
+let textResponse = expecter(res => res.text().catch(() => {}))
 
 export {
   HttpRequest,
