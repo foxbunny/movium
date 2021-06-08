@@ -14,6 +14,7 @@ let examples = [
   'routing',
   'debouncing',
   'non-mvu-widgets',
+  'quick-firing-tasks',
 ]
 
 module.exports = {

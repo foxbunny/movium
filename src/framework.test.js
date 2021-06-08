@@ -264,6 +264,33 @@ describe('render', () => {
       })
     })
   })
+
+  test('update after identical model is returned in an update', done => {
+    let root = document.createElement('div')
+
+    let init = () => 'model'
+    let MyMsg = Msg.of({ testLabel: 'test' })
+    let clicks = 0
+    let update = jest.fn((msg, model) => !(clicks++) ? model : 'updated')
+    let view = jest.fn(() => (
+      div([onClick(MyMsg)], 'Hello, test')
+    ))
+
+    render(root, init, update, view, [updateDetectorModule])
+
+    requestAnimationFrame(() => {
+      updateDetectorModule.update.mockClear()
+      root.click()
+      requestAnimationFrame(() => {
+        expect(updateDetectorModule.update).not.toHaveBeenCalled()
+        root.click()
+        requestAnimationFrame(() => {
+          expect(updateDetectorModule.update).toHaveBeenCalled()
+          done()
+        })
+      })
+    })
+  })
 })
 
 describe('inMsgs', () => {

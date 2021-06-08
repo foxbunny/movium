@@ -47,6 +47,7 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
   let oldVnode = rootNode
   let model = null
   let rendering = false
+  let updateQueue = []
   let renderView = (newModel) => {
     // Render the view on next frame to avoid recursion due to synchronous
     // execution.
@@ -64,22 +65,24 @@ let render = (rootNode, init, update, view, snabbdomModules = []) => {
         whenRaw(Any, id),
       )
 
-      if (newModel === model) return
-      model = newModel
+      if (newModel !== model) {
+        model = newModel
 
-      try {
-        let newVnode = view(model)(updater)
-        patch(oldVnode, newVnode)
-        oldVnode = newVnode
-      } catch (e) {
-        console.error(`Error ${e} while rendering`)
-        console.trace(e)
+        try {
+          let newVnode = view(model)(updater)
+          patch(oldVnode, newVnode)
+          oldVnode = newVnode
+        } catch (e) {
+          console.error(`Error ${e} while rendering`)
+          console.trace(e)
+        }
       }
 
       rendering = false
     })
   }
   let updater = msg => {
+    console.log('Receive message')
     if (rendering) {
       console.error(msg)
       console.trace(Error('Message received during rendering. Are you updating from a hook without using nextFrame()?'))
