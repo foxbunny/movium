@@ -5,6 +5,11 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes 
   to flesh out the API as early as possible.
   
+# 0.5.1
+
+- Fix rendering loop stopping completely when identical model is returned 
+  from an update
+  
 # 0.5.0 💣
 
 - 💣 Make response body (instead of status code) available through the 
