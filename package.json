@@ -1,6 +1,6 @@
 {
   "name": "movium",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "MVU JavaScript web framework",
   "main": "dist/index.js",
   "module": "src/index.js",

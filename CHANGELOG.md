@@ -5,6 +5,11 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
   
+# 0.7.1
+
+- Fixed a regression where an empty typed object would be treated as a value 
+  object
+  
 # 0.7.0 💣
 
 - 💣 Make `ValueObject` type stricter so that typed object that happen to have 
