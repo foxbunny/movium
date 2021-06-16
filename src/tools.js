@@ -12,6 +12,8 @@ let using = (expressions, fn) => fn(...expressions)
 let Append = Type.of()
 let Call = Type.of()
 let Merge = Type.of()
+let AsyncCall = Type.of()
+let Delete = Type.of()
 
 const CopyHandlers = []
 let copy = x => match(x,
@@ -66,11 +68,24 @@ let patch = (path, x) => {
       when(Any, () => [p[k], v]),
     )),
     when(Call, f => f(p[k])),
+    when(AsyncCall, f => f(p[k])),
     when(Merge, y => merge(p[k], y)),
     when(Any, () => v),
   )
 
   if (w === p[k]) return x
+
+  if (is(w, Delete)) {
+    delete p[k]
+    return y
+  }
+
+  if (is(AsyncCall, v)) {
+    return w.then(w => {
+      p[k] = w
+      return y
+    })
+  }
 
   p[k] = w
   return y
@@ -81,7 +96,9 @@ let randId = () => Math.random().toString(36).slice(2)
 export {
   Append,
   Call,
+  AsyncCall,
   Merge,
+  Delete,
   has,
   valueOf,
   id,

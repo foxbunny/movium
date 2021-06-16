@@ -18,6 +18,11 @@ take advantage of them when constructing your application.
 * [copy(x)](#copyx)
 * [merge(x, y)](#mergex-y)
 * [patch(path, x)](#patchpath-x)
+  * [Append](#append)
+  * [Call](#call)
+  * [AsyncCall](#asynccall)
+  * [Merge](#merge)
+  * [Delete](#delete)
 * [using(expressions, f)](#usingexpressions-f)
 * [See also](#see-also)
 
@@ -271,6 +276,8 @@ limited to assigning values, though. By wrapping the last item in the `path`
 argument, we can modify the default behavior. There are several wrappers that
 serve this purpose.
 
+### Append
+
 The `Append` wrapper causes `patch()` to append the value at the specified path.
 If there is no value, it will simply assign, but if there is already a value, it
 will append to it.
@@ -287,6 +294,8 @@ handlers = patch(['click', Append.val('logOut')], handlers)
 // => { click: ['save', 'close', 'logOut'] }
 ```
 
+### Call
+
 The `Call` wrapper wraps a function which is called with the current value at
 the path, and its return value is then assigned to the same location.
 
@@ -298,6 +307,26 @@ let inc = x => x + 1
 nums = patch(['x', Call.val(inc)])
 // => { x: 2, y: 1, z: 2 }
 ```
+
+### AsyncCall
+
+To perform the operation on the value asynchronously, we use the `AsyncCall`
+wrapper. This behaves similarly to `Call` but expects an asynchronous
+(`Promise`-returning) function, and the return value of the `patch()`
+function is a `Promise` that resolves to the patched object:
+
+```javascript
+import { patch, AsyncCall } from 'movium'
+
+let nums = { x: 1, y: 1, z: 2 }
+let asyncInc = x => Promise.resolve(x + 1)
+nums = patch(['x', AsyncCall.val(inc)])
+// => Promise
+nums.then(x => console.log(x))
+// => { x: 2, y: 1, z: 2 }
+```
+
+### Merge
 
 The `Merge` wrapper will merge the existing value with the new value. If there
 is no existing value, the new value is simply assigned. See the documentation
@@ -315,7 +344,19 @@ props = patch([
 // => { style: { border: 0, height: '12px', display: 'inline-block' } } 
 ```
 
-It's important to note that if the
+### Delete
+
+The `Delete` type is not a wrapper, but it is also a marker that modifies
+the `patch()`'s behavior. It will remove the preceding key from the target
+object. For example:
+
+```javascript
+import { patch, Delete } from 'movium'
+
+let props = { style: { border: 0, padding: '12px' }}
+props = patch(['style', 'border', Delete], props)
+// => { style: { padding: '12px' } } 
+```
 
 ## using(expressions, f)
 

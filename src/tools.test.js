@@ -1,5 +1,21 @@
 import { Msg } from './framework'
-import { Append, Call, copy, has, id, log, merge, Merge, partial, patch, tap, using, valueOf } from './tools'
+import {
+  Append,
+  AsyncCall,
+  Call,
+  copy,
+  Delete,
+  has,
+  id,
+  log,
+  merge,
+  Merge,
+  partial,
+  patch,
+  tap,
+  using,
+  valueOf,
+} from './tools'
 import { Type } from './types'
 
 describe('has', () => {
@@ -66,12 +82,12 @@ describe('copy', () => {
     null,
     undefined,
     /test/,
-    Symbol('me')
+    Symbol('me'),
   ])(
     'copy a primitive like %s',
     x => {
       expect(copy(x)).toBe(x)
-    }
+    },
   )
 
   test('copy a type', () => {
@@ -94,7 +110,7 @@ describe('copy', () => {
 
   test('copy value of a custom class', () => {
     class MyClass {
-      constructor(x, y) {
+      constructor (x, y) {
         this.x = x
         this.y = y
       }
@@ -108,11 +124,12 @@ describe('copy', () => {
 
   test('extend copy for custom class', () => {
     class MyClass {
-      constructor(x, y) {
+      constructor (x, y) {
         this.x = x
         this.y = y
       }
     }
+
     copy.define(MyClass, val => new MyClass(val.x, val.y))
 
     let x = new MyClass(1, 2)
@@ -328,6 +345,25 @@ describe('assignPath', () => {
     let v = ['foo', 'bar', Call.val(id)]
     let y = patch(v, x)
     expect(x).toBe(y)
+  })
+
+  test('assign asynchronously using AsyncCall', done => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', AsyncCall.val(x => Promise.resolve('qux'))]
+    let y = patch(v, x)
+    expect(y).toBeInstanceOf(Promise)
+    y.then(y => {
+      expect(y).toEqual({ foo: { bar: 'qux' } })
+      expect(y).not.toBe(x)
+      done()
+    })
+  })
+
+  test('delete a property', () => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', Delete]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: {} })
   })
 })
 
