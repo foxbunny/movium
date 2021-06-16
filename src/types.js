@@ -38,7 +38,7 @@ let TypeInferenceMappings = new Map([
   [null, x => x === null],
   [Iterable, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function'],
   [IterableObject, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function' && typeof x === 'object'],
-  [ValueObject, x => is(NonVoid, x) && is(Type, x) && hasOnlyValueProperty(x)],
+  [ValueObject, x => is(NonVoid, x) && is(Type, x) && !is(EmptyObject, x) && hasOnlyValueProperty(x)],
   [Primitive, x => is(Void, x) || PRIMITIVE_TYPES.includes(x.constructor)],
   [Complex, x => is(NonVoid, x) && typeof x === 'object'],
   [EmptyObject, x => {

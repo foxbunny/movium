@@ -51,9 +51,19 @@ describe('valueOf', () => {
       expect(valueOf(x)).toBe(x)
   })
 
-  test('get value of non-value object objects', () => {
-    for (let x of [[1, 2, 3], { foo: 'bar' }, new Date])
-      expect(valueOf(x)).toEqual(x)
+  test.each([
+    [[1, 2, 3]],
+    [{ foo: 'bar' }],
+    [new Date],
+  ])('get value of non-value object objects, like %s', (x) => {
+    expect(valueOf(x)).toEqual(x)
+  })
+
+  test('value of a typed object', () => {
+    let Foo = Type.of()
+    let x = Foo.of({ test: 'me' })
+    expect(valueOf(x)).toEqual(x)
+    expect(Object.getPrototypeOf(valueOf(x))).toBe(Foo)
   })
 })
 

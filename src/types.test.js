@@ -154,6 +154,11 @@ describe('is', () => {
     expect(is(ValueObject, Foo.val(1))).toBe(true)
     expect(is(ValueObject, Foo.of({ value: 1, foo: 2 }))).toBe(false)
   })
+
+  test('empty typed object is not a value object', () => {
+    let Foo = Type.of()
+    expect(is(ValueObject, Foo.of({}))).toBe(false)
+  })
 })
 
 
