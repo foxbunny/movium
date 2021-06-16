@@ -4,6 +4,13 @@
 - Semver is not observed prior to version 1.0.0.
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
+  
+# 0.7.0 💣
+
+- 💣 Make `ValueObject` type stricter so that typed object that happen to have 
+  a `value` property are not treated as value objects; objects that are typed
+  and *only* have a `value` property still are
+- Improve test coverage in the `framework` module
 
 # 0.6.0
 
