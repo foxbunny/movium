@@ -7,7 +7,7 @@ import {
   windowEventListeners,
 } from './snabbdomModules/specialEventListeners'
 import { id, valueOf } from './tools'
-import { Any, is, Type, val } from './types'
+import { Any, is, NonVoid, Type, val } from './types'
 
 let Msg = Type.of()
 let Task = Type.of({
@@ -28,7 +28,7 @@ let scope = (proto, view) => update =>
   view(msg => update(typeof proto === 'function' ? proto(msg) : val(proto, msg)))
 
 // (Msg, Msg) -> True
-let isMsg = (proto, x) => x != null && (is(proto, valueOf(x)) || isMsg(proto, valueOf(x)?.msg))
+let isMsg = (proto, x) => is(NonVoid, x) && (is(proto, x) || is(proto, valueOf(x)) || isMsg(proto, valueOf(x)?.msg))
 let inMsgs = (protoList, x) => protoList.some(t => isMsg(t, x))
 
 // (HTMLElement, (-> Model), Update, View, SnabbdomModule[]) -> Void

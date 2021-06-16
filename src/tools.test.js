@@ -282,6 +282,15 @@ describe('assignPath', () => {
     expect(y.value).toEqual({ foo: { bar: 2, baz: 2 } })
   })
 
+  test('assign on a property that is a value object', () => {
+    let Foo = Type.of()
+    let x = { foo: Foo.val({ bar: 1, baz: 2 }) }
+    let v = ['foo', 'bar', 2]
+    let y = patch(v, x)
+    expect(Object.getPrototypeOf(y.foo)).toBe(Foo)
+    expect(y).toEqual({ foo: Foo.val({ bar: 2, baz: 2 }) })
+  })
+
   test('assign on a typed object', () => {
     let Foo = Type.of()
     let x = Foo.of({ foo: { bar: 1, baz: 2 } })
@@ -289,6 +298,24 @@ describe('assignPath', () => {
     let y = patch(v, x)
     expect(Object.getPrototypeOf(y)).toBe(Foo)
     expect(y).toEqual({ foo: { bar: 2, baz: 2 } })
+  })
+
+  test('assign over a property that is a typed object', () => {
+    let Foo = Type.of()
+    let x = { foo: Foo.of({ bar: 1, baz: 2 }) }
+    let v = ['foo', 'bar', 2]
+    let y = patch(v, x)
+    expect(Object.getPrototypeOf(y.foo)).toBe(Foo)
+    expect(y).toEqual({ foo: Foo.of({ bar: 2, baz: 2 }) })
+  })
+
+  test('assign over a property that is a typed object and has a value property', () => {
+    let Foo = Type.of()
+    let x = { foo: Foo.of({ bar: 1, baz: 2, value: 0 }) }
+    let v = ['foo', 'bar', 2]
+    let y = patch(v, x)
+    expect(Object.getPrototypeOf(y.foo)).toBe(Foo)
+    expect(y).toEqual({ foo: Foo.of({ bar: 2, baz: 2, value: 0 }) })
   })
 
   test('merge objects', () => {

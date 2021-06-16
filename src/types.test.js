@@ -1,5 +1,18 @@
 import { Msg } from './framework'
-import { Any, Empty, EmptyObject, is, Iterable, IterableObject, Null, Primitive, Type, Undefined, Void } from './types'
+import {
+  Any,
+  Empty,
+  EmptyObject,
+  is,
+  Iterable,
+  IterableObject,
+  Null,
+  Primitive,
+  Type,
+  Undefined,
+  ValueObject,
+  Void,
+} from './types'
 
 describe('Type', () => {
   test('create a type using of()', () => {
@@ -135,6 +148,12 @@ describe('is', () => {
       expect(is(t, x)).toBe(false)
     }
   )
+
+  test('value object vs typed object with value property', () => {
+    let Foo = Type.of()
+    expect(is(ValueObject, Foo.val(1))).toBe(true)
+    expect(is(ValueObject, Foo.of({ value: 1, foo: 2 }))).toBe(false)
+  })
 })
 
 

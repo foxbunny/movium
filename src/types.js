@@ -1,3 +1,5 @@
+let val = (proto, value) => Object.create(proto, { value: { value, writable: false, enumerable: true }})
+
 let Type = Object.freeze({
   of (x) {
     return Object.create(this, x != null ? Object.getOwnPropertyDescriptors(x) : undefined)
@@ -22,6 +24,11 @@ let Empty = Type.of()
 
 const PRIMITIVE_TYPES = [String, Number, Boolean, RegExp, Symbol]
 
+let hasOnlyValueProperty = x => {
+  for (let k in x) if (Object.prototype.hasOwnProperty.call(x, k) && k !== 'value') return false
+  return true
+}
+
 let TypeInferenceMappings = new Map([
   [Void, x => x == null],
   [NonVoid, x => x != null],
@@ -31,7 +38,7 @@ let TypeInferenceMappings = new Map([
   [null, x => x === null],
   [Iterable, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function'],
   [IterableObject, x => is(NonVoid, x) && typeof x[Symbol.iterator] === 'function' && typeof x === 'object'],
-  [ValueObject, x => is(NonVoid, x) && Object.prototype.hasOwnProperty.call(x, 'value') && is(Type, x)],
+  [ValueObject, x => is(NonVoid, x) && is(Type, x) && hasOnlyValueProperty(x)],
   [Primitive, x => is(Void, x) || PRIMITIVE_TYPES.includes(x.constructor)],
   [Complex, x => is(NonVoid, x) && typeof x === 'object'],
   [EmptyObject, x => {
@@ -59,8 +66,6 @@ let is = (type, x) => {
 }
 is.define = (type, f) => TypeInferenceMappings.set(type, f)
 is.remove = type => TypeInferenceMappings.delete(type)
-
-let val = (proto, value) => Object.create(proto, { value: { value, writable: false }})
 
 export {
   Type,

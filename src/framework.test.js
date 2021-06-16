@@ -1,4 +1,4 @@
-import { delegate, inMsgs, Msg, render, scope, Task } from './framework'
+import { delegate, inMsgs, isMsg, Msg, render, scope, Task } from './framework'
 import { div, onClick } from './html'
 import { match, when } from './patternMatching'
 import { id } from './tools'
@@ -293,6 +293,41 @@ describe('render', () => {
   })
 })
 
+describe('isMsg', () => {
+  test('check if a message is of a message prototype', () => {
+    let Msg1 = Msg.of()
+    let m = Msg1.val('foo')
+
+    expect(isMsg(Msg1, m)).toBe(true)
+  })
+
+  test('check if the message proto is an ancestor', () => {
+    let Msg1 = Msg.of()
+    let m1 = Msg1.val('foo')
+    let m2 = m1.val('foo')
+
+    expect(isMsg(Msg1, m2)).toBe(true)
+  })
+
+  test('check if value has a proto', () => {
+    let Msg1 = Msg.of()
+    let Msg2 = Msg.of()
+    let m1 = Msg1.val('foo')
+    let m2 = Msg2.val(m1)
+
+    expect(isMsg(Msg1, m2)).toBe(true)
+  })
+
+  test('check if the object has a msg property which matches', () => {
+    let Msg1 = Msg.of()
+    let Msg2 = Msg.of()
+    let m1 = Msg1.val('foo')
+    let m2 = Msg2.val({ msg: m1 })
+
+    expect(isMsg(Msg1, m2)).toBe(true)
+  })
+})
+
 describe('inMsgs', () => {
   test('check if message is one of the specified', () => {
     let Msg1 = Msg.of()
@@ -301,6 +336,8 @@ describe('inMsgs', () => {
 
     let m1 = Msg1.of()
     let m2 = Msg3.of()
+
+    isMsg(Msg1, m1) //?
 
     expect(inMsgs([Msg1, Msg2], m1)).toBe(true)
     expect(inMsgs([Msg1, Msg2], m2)).toBe(false)
