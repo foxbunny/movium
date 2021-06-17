@@ -5,6 +5,10 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
   
+# 0.8.0
+
+- Added a `get()` function to complement the `patch()`
+  
 # 0.7.1
 
 - Fixed a regression where an empty typed object would be treated as a value 
