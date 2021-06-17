@@ -42,6 +42,15 @@ let merge = (x, y) => match(x,
   when(Any, () => y),
 )
 
+// (String[], T) -> U
+let get = (path, x) => {
+  for (let k of path) {
+    if (x == null || !has(k, x)) return
+    x = x[k]
+  }
+  return x
+}
+
 // ([...(String|Number), T], U) -> U
 let patch = (path, x) => {
   path = path.slice()
@@ -110,6 +119,7 @@ export {
   tap,
   copy,
   merge,
+  get,
   patch,
   randId,
 }

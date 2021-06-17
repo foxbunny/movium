@@ -17,6 +17,7 @@ take advantage of them when constructing your application.
 * [log(x)](#logx)
 * [copy(x)](#copyx)
 * [merge(x, y)](#mergex-y)
+* [get(path, x)](#getpath-x)
 * [patch(path, x)](#patchpath-x)
   * [Append](#append)
   * [Call](#call)
@@ -201,6 +202,24 @@ merge(1, 4) // => 5
 ```
 
 Unlike `copy()`, this function cannot be extended or modified.
+
+## get(path, x)
+
+This function is used to retrieve a value one or more levels of properties
+inside an object and/or array.
+
+For example:
+
+```javascript
+import { get } from 'movium'
+
+let x = { foo: { bar: [1, 2, 3] } }
+get(['foo', 'bar', 2], x)
+// => 3
+```
+
+If any members in the specified path are missing, or the specified object is
+void, then `undefined` is returned.
 
 ## patch(path, x)
 

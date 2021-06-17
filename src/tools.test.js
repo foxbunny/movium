@@ -5,6 +5,7 @@ import {
   Call,
   copy,
   Delete,
+  get,
   has,
   id,
   log,
@@ -226,7 +227,28 @@ describe('merge', () => {
   })
 })
 
-describe('assignPath', () => {
+describe('get', () => {
+  test('get a value at specified path from an object', () => {
+    let x = { foo: { bar: { baz: 12 } } }
+    expect(get(['foo', 'bar', 'baz'], x)).toBe(12)
+  })
+
+  test('get array members', () => {
+    let x = { foo: { bar: [{ baz: 12 }, { baz: 14 }] } }
+    expect(get(['foo', 'bar', 1, 'baz'], x)).toBe(14)
+  })
+
+  test('return undefined for missing member', () => {
+    let x = { foo: {} }
+    expect(get(['foo', 'bar'], x)).toBe(undefined)
+  })
+
+  test('return undefined if value is undefined', () => {
+    expect(get(['foo', 'bar'], undefined)).toBe(undefined)
+  })
+})
+
+describe('path', () => {
   test('assign to a path within the object', () => {
     let x = { foo: { bar: 1, baz: 2 } }
     let v = ['foo', 'bar', 2]
