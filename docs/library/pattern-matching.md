@@ -91,7 +91,34 @@ let ensureArray = x => match(x,
 In the example, we are only matching arrays and strings. Anything else will
 cause an exception to be thrown. Whether you wish to capture all other values
 and handle them somehow is up to you. As we've seen in the previous example, it
-is possible to use the special type `Any` for that purpose.
+is possible to use the special type `Any` for that purpose. 
+
+A shortcut for matching `Any` is the `whenElse()` function. To rewrite the 
+example we started with:
+
+```javascript
+import { match, when, whenElse, id } from 'movium'
+
+let ensureArray = x => match(x,
+  when(Array, id),
+  whenElse(() => [x]),
+)
+```
+
+In some cases, we want to let the non-matching value through without doing 
+anything to id. We would write `whenElse(id)` to achieve this, but since 
+this pattern is common, we have a `through` function to do the same:
+
+```javascript
+import { match, when, through } from 'movium'
+
+let errorMessage = x => match(x,
+  when(Error, e => error.message),
+  through,
+)
+```
+
+In this example, any value that is not an `Error` object will be returned as is.
 
 ## Pattern matching precedence
 

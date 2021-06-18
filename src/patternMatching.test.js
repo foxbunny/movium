@@ -1,4 +1,4 @@
-import { match, when, whenRaw } from './patternMatching'
+import { match, through, when, whenElse, whenRaw } from './patternMatching'
 import { id } from './tools'
 import { Type } from './types'
 
@@ -27,5 +27,30 @@ describe('pattern matching', () => {
     expect(match(X.val(12),
       whenRaw(X, id)
     )).toEqual(X.val(12))
+  })
+
+  test('match else case', () => {
+    expect(match([1, 2],
+      when(Array, x => x[1]),
+      whenElse(id),
+    )).toBe(2)
+
+    expect(match(3,
+      when(Array, x => x[1]),
+      whenElse(x => x + 1),
+    )).toBe(4)
+  })
+
+  test('pass-through clause', () => {
+    expect(match([1, 2],
+      when(Array, x => x[1]),
+      through,
+    )).toBe(2)
+
+    expect(match(3,
+      when(Array, x => x[1]),
+      through,
+    )).toBe(3)
+
   })
 })
