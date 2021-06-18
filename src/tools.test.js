@@ -263,7 +263,7 @@ describe('patch', () => {
     expect(y).toEqual({ foo: { bar: 2 } })
   })
 
-  test.only('assign to a non-existent array index', () => {
+  test('assign to a non-existent array index', () => {
     let x = {}
 
     let y = patch(['foo', 1, 'bar', 2], x)
