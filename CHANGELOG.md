@@ -5,6 +5,12 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
   
+# 0.9.0 💣
+
+- 💣 Create intermediate arrays when using `patch()` with a path that contains
+  numeric indexes (using typeof check).
+- Added `whenElse()` and `through()` matchers for pattern-matching
+
 # 0.8.0
 
 - Added a `get()` function to complement the `patch()`
