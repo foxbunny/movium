@@ -248,7 +248,7 @@ describe('get', () => {
   })
 })
 
-describe('path', () => {
+describe('patch', () => {
   test('assign to a path within the object', () => {
     let x = { foo: { bar: 1, baz: 2 } }
     let v = ['foo', 'bar', 2]
@@ -261,6 +261,16 @@ describe('path', () => {
     let v = ['foo', 'bar', 2]
     let y = patch(v, x)
     expect(y).toEqual({ foo: { bar: 2 } })
+  })
+
+  test.only('assign to a non-existent array index', () => {
+    let x = {}
+
+    let y = patch(['foo', 1, 'bar', 2], x)
+    expect(y).toEqual({ foo: [undefined, { bar: 2 }] })
+
+    let z = patch(['foo', 'bar', 1, 2], x)
+    expect(z).toEqual({ foo: { bar: [undefined, 2] } })
   })
 
   test('append to a path', () => {

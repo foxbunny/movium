@@ -65,7 +65,9 @@ let patch = (path, x) => {
   // Keep drilling into the object until the last pair
   while (path.length > 2) {
     let k = path.shift()
-    let v = has(k, p) ? copy(p[k]) : {}
+    let v = has(k, p)
+      ? copy(p[k])
+      : typeof path[0] === 'number' ? [] : {} // Create an array if the next key is numeric
     // Update the reference and set the copy to the current key
     p = valueOf(p[k] = v)
   }

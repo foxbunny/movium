@@ -290,6 +290,24 @@ is(Bar, y.foo.bar) // => true
 y.foo.bar.value // => { baz: [1, 2, 6] }
 ```
 
+Note that array indexes can be used even when no arrays exist within the 
+specified path. Intermediate arrays will be created, and the values are going 
+to be assigned at the specified index. For example:
+
+```javascript
+import { patch } from 'movium'
+
+let x = { foo: 'bar' }
+patch(['baz', 1, { qux: 'me' }], x)
+// => { foo: 'bar', baz: [, { qux: 'me' }] }
+```
+
+When creating arrays this way, you should keep in mind that arrays will have 
+blank elements leading up the element being inserted (elements that are not 
+participating in iteration using array methods like `map()` or `forEach()`). 
+This is intentional, as blank elements represent elements that do not exist,
+which s technically correct. 
+
 In example thus far, we have seen how to assign values. This function is not
 limited to assigning values, though. By wrapping the last item in the `path`
 argument, we can modify the default behavior. There are several wrappers that
