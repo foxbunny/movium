@@ -4,7 +4,22 @@
 - Semver is not observed prior to version 1.0.0.
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
-  
+
+# 0.10.0 💣
+
+- 💣 Enhance `patch()`
+  - Changed the `Delete` wrapper behavior so that it also takes keys/indices to
+    be deleted
+  - Removed `AsyncCall` and handle `Promises` that are assigned directly or
+    returned from `Call`
+  - Added `Assign` wrapper that assigns values (this is a workaround for cases
+    where we want to assign `Promises` without resolving them)
+  - Added `Pluck` wrapper that removes elements from arrays and sets
+  - Added `KeyOf` prototype that allows us to specify path segments by 
+    looking up their values
+  - Documented that `Call` can be combined with `Assign`, `Delete` and `Pluck`
+- Remove `yarn.lock` from application template
+
 # 0.9.0 💣
 
 - 💣 Create intermediate arrays when using `patch()` with a path that contains
@@ -14,15 +29,15 @@
 # 0.8.0
 
 - Added a `get()` function to complement the `patch()`
-  
+
 # 0.7.1
 
-- Fixed a regression where an empty typed object would be treated as a value 
+- Fixed a regression where an empty typed object would be treated as a value
   object
-  
+
 # 0.7.0 💣
 
-- 💣 Make `ValueObject` type stricter so that typed object that happen to have 
+- 💣 Make `ValueObject` type stricter so that typed object that happen to have
   a `value` property are not treated as value objects; objects that are typed
   and *only* have a `value` property still are
 - Improve test coverage in the `framework` module
@@ -35,7 +50,7 @@
 
 - Fix rendering loop stopping completely when identical model is returned from
   an update
- 
+
 # 0.5.0 💣
 
 - 💣 Make response body (instead of status code) available through the
