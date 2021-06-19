@@ -1,4 +1,4 @@
-import { div, input, match, Msg, onInput, p, patch, render, value, when } from 'movium'
+import { div, input, match, Msg, onInput, p, patch, render, value, when, whenElse } from 'movium'
 
 // MODEL
 
@@ -11,10 +11,7 @@ let init = () => ({
 let SetName = Msg.of()
 
 let update = (msg, model) => match(msg,
-  when(SetName, name => {
-    if (name === 'error') throw Error('omg')
-    return patch(['name', name], model)
-  }),
+  when(SetName, name => ({ ...model, name })),
 )
 
 // VIEW

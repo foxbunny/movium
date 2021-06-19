@@ -1,4 +1,21 @@
-import { a, Any, className, Delayed, div, h1, key, main, match, Msg, onClick, Remove, render, Type, when } from 'movium'
+import {
+  a,
+  Any,
+  className,
+  Delayed,
+  div,
+  h1,
+  key,
+  main,
+  match,
+  Msg,
+  onClick,
+  Remove,
+  render,
+  Type,
+  when,
+  whenElse,
+} from 'movium'
 import './index.css'
 
 // MODEL
@@ -13,11 +30,11 @@ let init = () => Home.of()
 
 let GoTo = Msg.of()
 
-let update = (msg, model) => match(msg,
+let update = msg => match(msg,
   when(GoTo, page => match(page,
     when(Home, () => Home.of()),
     when(About, () => About.of()),
-    when(Any, () => Missing.of()),
+    whenElse(() => Missing.of()),
   )),
 )
 

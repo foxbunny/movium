@@ -1,4 +1,4 @@
-import { button, div, li, match, Msg, onClick, p, scope, ul, when } from 'movium'
+import { button, Call, div, li, match, Msg, onClick, p, patch, scope, ul, when } from 'movium'
 import './app.css'
 import * as counter from './counter'
 
@@ -18,11 +18,7 @@ let Reset = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(Reset, () => init(model.initialValue)),
-  when(InCounter, ({ key, msg }) => ({
-      ...model,
-      [key]: counter.update(msg, model[key]),
-    }),
-  ),
+  when(InCounter, ({ key, msg }) => patch([key, Call.val(x => counter.update(msg, x))], model)),
 )
 
 // VIEW
@@ -50,8 +46,8 @@ let view = model => (
       scopedCounter(model.n1, 'n1'),
     ),
     p([],
-      button([onClick(Reset)], 'Reset')
-    )
+      button([onClick(Reset)], 'Reset'),
+    ),
   )
 )
 

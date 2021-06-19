@@ -177,7 +177,7 @@ import {
 
 let Loading = Type.of()
 let Loaded = Type.of()
-let Error = Type.of()
+let Failed = Type.of()
 
 let init = () => Task.from(
   Loading.of(), 
@@ -190,7 +190,7 @@ let Ready = Msg.of()
 let update = (msg, model) => match(msg,
   when(Ready, result => match(result,
     when(HttpResult, data => Loaded.val(data.data)),
-    when(HttpError, () => Error.val('Oh, noes!'))
+    when(HttpError, () => Failed.val('Oh, noes!'))
   )),
 )
 ```

@@ -87,10 +87,8 @@ let Reset = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(Reset, () => init(model.initialValue)),
-  when(InCounter, ({ key, msg }) => ({
-      ...model,
-      [key]: counter.update(msg, model[key]),
-    }),
+  when(InCounter, ({ key, msg }) => 
+    patch([key, Call.val(x => counter.update(msg, x))], model)
   ),
 )
 
@@ -155,10 +153,9 @@ messages to the counter's update function.
 
 ```javascript
 let update = (msg, model) => match(msg,
-  when(InCounter, ({ key, msg }) => ({
-    ...model,
-    [key]: counter.update(msg, model[key])
-  })),
+  when(InCounter, ({ key, msg }) => 
+    patch([key, Call.val(x => counter.update(msg, x))], model)
+  ),
 )
 ```
 
@@ -172,8 +169,7 @@ takes two arguments: a message prototype, or a function that returns a message
 object as the first, and a renderer function (function returned by an element
 function or a view). Scoped views will wrap any and all incoming messages in the
 specified prototype, or using the specified wrapper function, so that the
-updater can identify them in some way (although this is just an intended use
-case, and you can do anything you want with the scoped views).
+updater can identify them in some way.
 
 ```javascript
 let scopedCounter = (model, key) => (
@@ -186,9 +182,9 @@ let scopedCounter = (model, key) => (
 )
 ```
 
-The scoped counter view will take any messages coming from the counter (i.e.,
-`Inc` and `Dec`) and create a `InCounter` message that contains the original
-message as well as the counter's key.
+The scoped counter view in this example will take any messages coming from the
+counter (i.e., `Inc` and `Dec`) and create a `InCounter` message that contains
+the original message as well as the counter's key.
 
 **NOTE:** The `val()` method on the message object is provided by the `Msg`
 prototype, so you have to create the message prototype using `Msg.of()` in order

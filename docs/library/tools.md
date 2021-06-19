@@ -19,11 +19,13 @@ take advantage of them when constructing your application.
 * [merge(x, y)](#mergex-y)
 * [get(path, x)](#getpath-x)
 * [patch(path, x)](#patchpath-x)
+  * [Assign](#assign)
   * [Append](#append)
-  * [Call](#call)
-  * [AsyncCall](#asynccall)
   * [Merge](#merge)
   * [Delete](#delete)
+  * [Pluck](#pluck)
+  * [Call](#call)
+  * [Specifying a key/index by value](#specifying-a-keyindex-by-value)
 * [using(expressions, f)](#usingexpressions-f)
 * [See also](#see-also)
 
@@ -290,9 +292,9 @@ is(Bar, y.foo.bar) // => true
 y.foo.bar.value // => { baz: [1, 2, 6] }
 ```
 
-Note that array indexes can be used even when no arrays exist within the 
-specified path. Intermediate arrays will be created, and the values are going 
-to be assigned at the specified index. For example:
+Note that array indexes can be used even when no arrays exist within the
+specified path. Intermediate arrays will be created, and the values are going to
+be assigned at the specified index. For example:
 
 ```javascript
 import { patch } from 'movium'
@@ -302,16 +304,47 @@ patch(['baz', 1, { qux: 'me' }], x)
 // => { foo: 'bar', baz: [, { qux: 'me' }] }
 ```
 
-When creating arrays this way, you should keep in mind that arrays will have 
-blank elements leading up the element being inserted (elements that are not 
-participating in iteration using array methods like `map()` or `forEach()`). 
+When creating arrays this way, you should keep in mind that arrays will have
+blank elements leading up the element being inserted (elements that are not
+participating in iteration using array methods like `map()` or `forEach()`).
 This is intentional, as blank elements represent elements that do not exist,
-which s technically correct. 
+which s technically correct.
+
+We can assign values asynchronously by using a `Promise`. For example to make
+the last example asynchronous we would do something like this:
+
+```javascript
+import { patch } from 'movium'
+
+let x = { foo: 'bar' }
+let p = patch(['baz', 1, Promise.resolve({ qux: 'me' })], x)
+// => [object Promise]
+p.then(console.log)
+// => { foo: 'bar', baz: [, { qux: 'me' }] }
+```
+
+If we want to assign a promise as is without this asynchronous assignment
+behavior, we can use the `Assign` wrapper (see below).
 
 In example thus far, we have seen how to assign values. This function is not
 limited to assigning values, though. By wrapping the last item in the `path`
 argument, we can modify the default behavior. There are several wrappers that
 serve this purpose.
+
+### Assign
+
+The `Assign` wrapper results in the same operation as not wrapping the value at
+all. It exists because `Promise` objects have special treatment and can
+therefore not be assigned without explicitly wrapping it in `Assign`. For
+example:
+
+```javascript
+import { patch } from 'movium'
+
+let x = { foo: 'bar' }
+let p = patch(['baz', 1, Assign.val(Promise.resolve({ qux: 'me' }))], x)
+// => { foo: 'bar', baz: [object Promise] }
+```
 
 ### Append
 
@@ -329,38 +362,6 @@ handlers = patch(['click', Append.val('close')], handlers)
 // => { click: ['save', 'close'] }
 handlers = patch(['click', Append.val('logOut')], handlers)
 // => { click: ['save', 'close', 'logOut'] }
-```
-
-### Call
-
-The `Call` wrapper wraps a function which is called with the current value at
-the path, and its return value is then assigned to the same location.
-
-```javascript
-import { patch, Call } from 'movium'
-
-let nums = { x: 1, y: 1, z: 2 }
-let inc = x => x + 1
-nums = patch(['x', Call.val(inc)])
-// => { x: 2, y: 1, z: 2 }
-```
-
-### AsyncCall
-
-To perform the operation on the value asynchronously, we use the `AsyncCall`
-wrapper. This behaves similarly to `Call` but expects an asynchronous
-(`Promise`-returning) function, and the return value of the `patch()`
-function is a `Promise` that resolves to the patched object:
-
-```javascript
-import { patch, AsyncCall } from 'movium'
-
-let nums = { x: 1, y: 1, z: 2 }
-let asyncInc = x => Promise.resolve(x + 1)
-nums = patch(['x', AsyncCall.val(inc)])
-// => Promise
-nums.then(x => console.log(x))
-// => { x: 2, y: 1, z: 2 }
 ```
 
 ### Merge
@@ -383,17 +384,143 @@ props = patch([
 
 ### Delete
 
-The `Delete` type is not a wrapper, but it is also a marker that modifies
-the `patch()`'s behavior. It will remove the preceding key from the target
-object. For example:
+`Delete` wraps a key or an index and makes `patch()` remove the specified key. 
+For example:
 
 ```javascript
 import { patch, Delete } from 'movium'
 
 let props = { style: { border: 0, padding: '12px' }}
-props = patch(['style', 'border', Delete], props)
+patch(['style', Delete.val('border')], props)
 // => { style: { padding: '12px' } } 
 ```
+
+`Delete` works on arrays, maps,and objects.
+
+`Delete` can be used without a value to delete the previous key. This is the 
+behavior prior to v0.10.0. For example, the above example can be rewritten 
+like this:
+
+```javascript
+import { patch, Delete } from 'movium'
+
+let props = { style: { border: 0, padding: '12px' }}
+patch(['style', 'border', Delete], props)
+// => { style: { padding: '12px' } } 
+```
+
+While there is technically no difference between the two forms, the second 
+form can come in handy when used with `Call` (see below), where we can 
+conditionally delete keys.
+
+### Pluck
+
+While `Delete` deletes values by key or index, `Pluck` deletes by value. Because
+deleting by value is typically done for sequences, `Pluck` only works on arrays
+and sets. For example:
+
+```javascript
+import { patch, Pluck } from 'movium'
+
+let x = { foo: [1, 2, 3, 4] }
+patch(['foo', Pluck.val(3)], x)
+// => { foo: [1, 2, 4] }
+```
+
+### Call
+
+The `Call` wrapper wraps a function which is called with the current value at
+the path, and its return value is then assigned to the same location.
+
+```javascript
+import { patch, Call } from 'movium'
+
+let nums = { x: 1, y: 1, z: 2 }
+let inc = x => x + 1
+nums = patch(['x', Call.val(inc)])
+// => { x: 2, y: 1, z: 2 }
+```
+
+To perform the operation on the value asynchronously, we simply return a
+`Promise` in the function that `Call` wraps. Whenever the function returns a
+`Promise`, `patch()` returns a `Promise` that resolves to the patched object:
+
+```javascript
+import { patch, Call } from 'movium'
+
+let nums = { x: 1, y: 1, z: 2 }
+let asyncInc = x => Promise.resolve(x + 1)
+nums = patch(['x', Call.val(inc)])
+// => Promise
+nums.then(x => console.log(x))
+// => { x: 2, y: 1, z: 2 }
+```
+
+The function inside `Call` can return wrapped values as well, albeit only a
+limited to the following wrappers:
+
+- `Assign`
+- `Delete`
+- `Pluck`
+
+When returning a wrapped value, the behavior is exactly the same as if it were
+located at the same position within the path as `Call` that returned it. For 
+example:
+
+```javascript
+import { patch, Call, Pluck } from 'movium'
+
+let x = { foo: [1, 2, 3, 4] }
+patch(['foo', Call.val(() => Pluck.val(4)], x)
+// => { foo: [1, 2, 3] }
+```
+
+As mentioned in the section on the `Delete` wrapper, we can conditionally 
+delete an object property or array/map member by using `Call` and 
+conditionally returning the `Delete` type:
+
+```javascript
+import { patch, Call, Pluck } from 'movium'
+
+let isEven = x => x % 2 === 0
+let delEven = x => isEven(x) ? Delete : x
+let x = { foo: [1, 2, 3, 4] }
+patch(['foo', 2, Call.val(delEven)], x)
+// => { foo: [1, 2, 3, 4] }
+```
+
+### Specifying a key/index by value
+
+In some cases, it is useful to specify a key or index by its value. For example,
+maybe we want to replace an array element by another value. To achieve this, we
+use the `KeyOf` type:
+
+```javascript
+let { patch, KeyOf } from 'movium'
+
+let x = { foo: [1, 2, 3, 4] }
+patch(['foo', KeyOf.val(4), 10], x)
+// => { foo: [1, 2, 3, 10] }
+```
+
+Normally, when we specify a key/index that does not exist, `patch()` creates it
+with an appropriate value depending on the next key/index in the path. When
+using `KeyOf`, however, this behavior does not make much sense, so it throws an
+exception if the value is not found at the specified part of the path.
+
+```javascript
+let { patch, KeyOf } from 'movium'
+
+let x = { foo: [1, 2, 3, 4] }
+patch(['foo', KeyOf.val(8), 10], x)
+// Error: '8 not found in 1,2,3,4'
+```
+
+It is the application's responsibility to make sure the value is present.
+
+The `KeyOf` type has an alias called `IndexOf` that can be used to clarify 
+that we are talking about array indices. There is no difference except for 
+the name.
 
 ## using(expressions, f)
 

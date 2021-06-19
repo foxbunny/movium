@@ -1,4 +1,4 @@
-import { Any, div, match, Msg, onHashchange, render, Type, using, when } from 'movium'
+import { Any, div, match, Msg, onHashchange, render, Type, using, when, whenElse } from 'movium'
 import * as about from './about'
 import * as home from './home'
 
@@ -13,7 +13,7 @@ let withPage = (handleMiss, handleMatch) => using(
   window.location.hash.slice(1).split('/'),
   (page, ...params) => match(PAGE_MODULES[page],
     when(undefined, handleMiss),
-    when(Any, module => handleMatch(module, ...params)),
+    whenElse(module => handleMatch(module, ...params)),
   ),
 )
 
@@ -30,7 +30,7 @@ let GoTo = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(GoTo, init),
-  when(Any, () => withPage(
+  whenElse(() => withPage(
     () => model, // ignoring messages from the missing page
     module => module.update(msg, model),
   )),

@@ -4,7 +4,7 @@ import { div, GET, HttpError, HttpResult, jsonResponse, li, match, Msg, render, 
 
 let Loading = Type.of()
 let Loaded = Type.of()
-let Error = Type.of()
+let Failed = Type.of()
 
 let init = () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse), Ready)
 
@@ -12,10 +12,10 @@ let init = () => Task.from(Loading.of(), GET('/data.json').expect(jsonResponse),
 
 let Ready = Msg.of()
 
-let update = (msg, model) => match(msg,
+let update = msg => match(msg,
   when(Ready, result => match(result,
     when(HttpResult, data => Loaded.val(data.data)),
-    when(HttpError, () => Error.val('Oh, noes!'))
+    when(HttpError, () => Failed.val('Oh, noes!'))
   )),
 )
 
@@ -26,7 +26,7 @@ let view = model => (
     match(model,
       when(Loading, () => 'Loading...'),
       when(Loaded, data => ul([], data.map(d => li([], d.name)))),
-      when(Error, () => 'Error while loading data'),
+      when(Failed, () => 'Error while loading data'),
     ),
   )
 )

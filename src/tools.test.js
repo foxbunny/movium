@@ -1,18 +1,19 @@
 import { Msg } from './framework'
+import { Remove } from './html'
 import {
-  Append,
+  Append, Assign,
   AsyncCall,
   Call,
   copy,
   Delete,
   get,
   has,
-  id,
+  id, KeyOf, keyOf,
   log,
   merge,
   Merge,
   partial,
-  patch,
+  patch, Pluck,
   tap,
   using,
   valueOf,
@@ -227,6 +228,28 @@ describe('merge', () => {
   })
 })
 
+describe('keyOf', () => {
+  test('get an array index', () => {
+    let x = [1, 2, 3, 4]
+    expect(keyOf(2, x)).toBe(1)
+  })
+
+  test('throw if no array member is found', () => {
+    let x = [1, 2, 3, 4]
+    expect(() => keyOf(8, x)).toThrow('8 not found in 1,2,3,4')
+  })
+
+  test('get an object key', () => {
+    let x = { foo: 'bar', baz: 'qux' }
+    expect(keyOf('qux', x)).toBe('baz')
+  })
+
+  test('throw if object property value is not found', () => {
+    let x = { foo: 'bar', baz: 'qux' }
+    expect(() => keyOf('omg', x)).toThrow('omg not found in [object Object]')
+  })
+})
+
 describe('get', () => {
   test('get a value at specified path from an object', () => {
     let x = { foo: { bar: { baz: 12 } } }
@@ -416,9 +439,9 @@ describe('patch', () => {
     expect(x).toBe(y)
   })
 
-  test('assign asynchronously using AsyncCall', done => {
+  test('assign asynchronously using Call', done => {
     let x = { foo: { bar: 'baz' } }
-    let v = ['foo', 'bar', AsyncCall.val(x => Promise.resolve('qux'))]
+    let v = ['foo', 'bar', Call.val(x => Promise.resolve('qux'))]
     let y = patch(v, x)
     expect(y).toBeInstanceOf(Promise)
     y.then(y => {
@@ -428,11 +451,115 @@ describe('patch', () => {
     })
   })
 
+  test('assign a Promise without resolving by returning Assign from Call', () => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', Call.val(x => Assign.val(Promise.resolve('qux')))]
+    let y = patch(v, x)
+    expect(y).not.toBeInstanceOf(Promise)
+    expect(y.foo.bar).toBeInstanceOf(Promise)
+  })
+
+  test('assign asynchronously using a plain Promise', done => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', Promise.resolve('qux')]
+    let y = patch(v, x)
+    expect(y).toBeInstanceOf(Promise)
+    y.then(y => {
+      expect(y).toEqual({ foo: { bar: 'qux' } })
+      expect(y).not.toBe(x)
+      done()
+    })
+  })
+
+  test('assign a Promise without resolving', () => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', Assign.val(Promise.resolve('qux'))]
+    let y = patch(v, x)
+    expect(y.foo.bar).toBeInstanceOf(Promise)
+  })
+
   test('delete a property', () => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', Delete.val('bar')]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: {} })
+  })
+
+  test('delete an array member', () => {
+    let x = { foo: [1, 2, 3, 4] }
+    let v = ['foo', Delete.val(1)]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: [1, 3, 4] })
+  })
+
+  test('delete a key from a Map', () => {
+    let x = { foo: new Map([['bar', 'baz'], ['baz', 'qux']]) }
+    let v = ['foo', Delete.val('baz')]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: new Map([['bar', 'baz']]) })
+  })
+
+  test('delete the previous key', () => {
+    let x = { foo: { bar: 'baz' } }
+    let v = ['foo', 'bar', Delete.val()]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: {} })
+  })
+
+  test('delete the previous key without calling .val() on Delete', () => {
     let x = { foo: { bar: 'baz' } }
     let v = ['foo', 'bar', Delete]
     let y = patch(v, x)
     expect(y).toEqual({ foo: {} })
+  })
+
+  test('remove an array member', () => {
+    let x = { foo: [1, 2, 3, 4] }
+    let v = ['foo', Pluck.val(1)]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: [2, 3, 4] })
+  })
+
+  test('remove a set member', () => {
+    let x = { foo: new Set([1, 2, 3, 4]) }
+    let v = ['foo', Pluck.val(1)]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: new Set([2, 3, 4]) })
+  })
+
+  test('specify an array index using a value', () => {
+    let x = { foo: [1, 2, 3, 4] }
+    let v = ['foo', KeyOf.val(3), Call.val(x => x + 1)]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: [1, 2, 4, 4]})
+  })
+
+  test('specify an object key using a value', () => {
+    let x = { foo: { bar: 'baz', baz: 'qux' } }
+    let v = ['foo', KeyOf.val('qux'), 'not qux']
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: { bar: 'baz', baz: 'not qux' } })
+  })
+
+  test('specify a map key using a value', () => {
+    let x = { foo: new Map([['bar', 'baz'], ['baz', 'qux']]) }
+    let v = ['foo', KeyOf.val('qux'), 'not qux']
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: new Map([['bar', 'baz'], ['baz', 'not qux']]) })
+  })
+
+  test('combine call with delete', () => {
+    let x = { foo: new Map([['bar', 'baz'], ['baz', 'qux']]) }
+    let v = ['foo', Call.val(() => Delete.val('baz'))]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: new Map([['bar', 'baz']]) })
+  })
+
+  test('combine call with pluck', () => {
+    let x = { foo: [1, 2, 3, 4] }
+    let v = ['foo', Call.val(() => Pluck.val(3))]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: [1, 2, 4] })
   })
 })
 
