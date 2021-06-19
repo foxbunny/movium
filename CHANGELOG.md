@@ -10,13 +10,13 @@
 - Enhance `patch()`
   - Changed the `Delete` wrapper behavior so that it also takes keys/indices to
     be deleted
-  - 💣 Removed `AsyncCall` and handle `Promises` that are assigned directly or
-    returned from `Call`
+  - 💣 Removed `AsyncCall` and in favor of handling `Promises` that are assigned
+    directly or returned from `Call`
   - Added `Assign` wrapper that assigns values (this is a workaround for cases
     where we want to assign `Promises` without resolving them)
   - Added `Pluck` wrapper that removes elements from arrays and sets
-  - Added `KeyOf` prototype that allows us to specify path segments by 
-    looking up their values
+  - Added `KeyOf` prototype that allows us to specify path segments by looking
+    up their values
   - Documented that `Call` can be combined with `Assign`, `Delete` and `Pluck`
 - Remove `yarn.lock` from application template
 
