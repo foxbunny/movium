@@ -7,10 +7,10 @@
 
 # 0.10.0 💣
 
-- 💣 Enhance `patch()`
+- Enhance `patch()`
   - Changed the `Delete` wrapper behavior so that it also takes keys/indices to
     be deleted
-  - Removed `AsyncCall` and handle `Promises` that are assigned directly or
+  - 💣 Removed `AsyncCall` and handle `Promises` that are assigned directly or
     returned from `Call`
   - Added `Assign` wrapper that assigns values (this is a workaround for cases
     where we want to assign `Promises` without resolving them)
