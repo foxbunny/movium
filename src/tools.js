@@ -172,6 +172,9 @@ let patch = (path, x) => {
 
 let randId = () => Math.random().toString(36).slice(2)
 
+let piped = (f, ...fns) => fns.reduce((f, g) => (...args) => g(f(...args)), f)
+let pipe = (x, ...fns) => fns.reduce((x, f) => f(x), x)
+
 export {
   Assign,
   Append,
@@ -195,4 +198,6 @@ export {
   get,
   patch,
   randId,
+  piped,
+  pipe,
 }

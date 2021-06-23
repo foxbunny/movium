@@ -14,8 +14,8 @@ import {
   merge,
   Merge,
   partial,
-  patch,
-  Pluck,
+  patch, piped,
+  Pluck, pipe,
   tap,
   using,
   valueOf,
@@ -604,5 +604,25 @@ describe('using', () => {
     let x = using([1, 2, 3], f)
     expect(f).toHaveBeenCalledWith(1, 2, 3)
     expect(x).toBe(6)
+  })
+})
+
+describe('piped', () => {
+  test('pipe functions', () => {
+    let inc = x => x + 1
+    let dbl = x => x * 2
+
+    expect(piped(inc, dbl)(2)).toBe(6)
+    expect(piped(dbl, inc)(2)).toBe(5)
+  })
+})
+
+describe('pipe', () => {
+  test('pipe functions', () => {
+    let inc = x => x + 1
+    let dbl = x => x * 2
+
+    expect(pipe(2, inc, dbl)).toBe(6)
+    expect(pipe(2, dbl, inc)).toBe(5)
   })
 })

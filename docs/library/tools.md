@@ -27,6 +27,8 @@ take advantage of them when constructing your application.
   * [Call](#call)
   * [Specifying a key/index by value](#specifying-a-keyindex-by-value)
 * [using(expressions, f)](#usingexpressions-f)
+* [piped(...fns)](#pipedfns)
+* [pipe(x, ...fns)](#pipex-fns)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -601,6 +603,50 @@ let view = model => ((isDisabled = someExpensiveOperation(model)) => (
 
 If you don't mind the extra parentheses, this is a valid, and very slightly more
 efficient, solution for avoiding the `return` statement.
+
+## piped(...fns)
+
+Create a function that will accept any number of arguments and pipe the 
+arguments though each function given as arguments. `piped(f, g)` is 
+therefore equivalent of `(...args) => g(f(...args))`. 
+
+Because of the way how pipes work, only the first function in the pipe can take
+more than one argument, as any subsequent function must accept the return value
+of the previous one. Use partial application to convert functions with 
+multiple arguments into a single-argument function (you may need to work on 
+the argument order).
+
+```javascript
+import { piped } from 'movium'
+
+let inc = x => x + 1
+let dbl = x => x * 2
+let incDbl = pipe(inc, dbl)
+
+incDbl(2)
+// => 6
+```
+
+**NOTE:** There is also a function called `pipe()` which does something similar.
+
+## pipe(x, ...fns)
+
+Pipe the value `x` through any number of function passed as second and 
+subsequent argument such that each function will take the return value of 
+the previous one as its argument. `pipe(x, f, g)` is the same as `g(f(x))`.
+
+```javascript
+import { pipe } from 'movium'
+
+let inc = x => x + 1
+let dbl = x => x * 2
+
+pipe(2, inc, dbl)
+// => 6
+```
+
+**NOTE:** There is also a function called `piped()` which does something 
+similar.
 
 ## See also
 
