@@ -1,3 +1,5 @@
+const IS_SERVER = typeof document === 'undefined'
+
 let createListener = handleEvent => {
   let listener = event => handleEvent(event, listener.vnode)
   return listener
@@ -69,9 +71,20 @@ let handleWindowEvent = (event, vnode) => {
   invokeHandler(handlers, vnode, event)
 }
 
-let updateDocumentListeners = createListenerUpdater(document.body, handleDocumentEvent, 'onDocument', 'documentListener')
-let updateOutsideListeners = createListenerUpdater(document.body, handleOutsideEvent, 'onOutside', 'outsideListener')
-let updateWindowListeners = createListenerUpdater(window, handleWindowEvent, 'onWindow', 'windowListener')
+let updateDocumentListeners
+let updateOutsideListeners
+let updateWindowListeners
+
+if (IS_SERVER) {
+  updateDocumentListeners = null
+  updateOutsideListeners = null
+  updateWindowListeners = null
+} else {
+  updateDocumentListeners = createListenerUpdater(document.body, handleDocumentEvent, 'onDocument', 'documentListener')
+  updateOutsideListeners = createListenerUpdater(document.body, handleOutsideEvent, 'onOutside', 'outsideListener')
+  updateWindowListeners = createListenerUpdater(window, handleWindowEvent, 'onWindow', 'windowListener')
+}
+
 
 let documentEventListeners = {
   create: updateDocumentListeners,
