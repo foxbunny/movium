@@ -21,6 +21,7 @@ requests are welcome!).
 * [Writing custom matchers](#writing-custom-matchers)
 * [Using pattern matching and types to organize the application](#using-pattern-matching-and-types-to-organize-the-application)
 * [Raw match](#raw-match)
+* [Curried version](#curried-version)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -365,6 +366,56 @@ This can be useful when we are working with values that need to be passed down
 to code that does pattern matching itself and we want to keep the type of the
 value (e.g., when working with update functions that delegate to some other
 module).
+
+## Curried version
+
+Sometimes we want to omit the first argument from `match()` and only specify 
+the matchers. The `match()` function cannot be partially applied as the 
+first argument is the primary argument. This was a conscious design decision 
+to improve readability in the most common case where `match()` is called 
+with all of its arguments.
+
+Movium provides a curried version of `match()` called `match$()` which takes 
+the first argument separately and after the matchers. Let's rewrite one of 
+the examples we've seen before to use `match$()` instead of `match()`:
+
+```javascript
+import { match$, when, Type } from 'movium'
+
+let Blank = Type.of()
+let Loading = Type.of()
+let Finished = Type.of()
+let Failed = Type.of()
+
+let init = () => Blank.of()
+
+let renderBlank = () => { /* ... */ }
+let renderLoading = () => { /* ... */ }
+let renderFailed = () => { /* ... */ }
+let renderFinished = () => { /* ... */ }
+
+let view = match$(
+  when(Blank, renderBlank),
+  when(Loading, renderLoading),
+  when(Finished, renderFinished),
+  when(Failed, renderFailed),
+)
+```
+
+Let's compare the `view()` function to the original:
+
+```javascript
+let view = model => match(model,
+  when(Blank, renderBlank),
+  when(Loading, renderLoading),
+  when(Finished, renderFinished),
+  when(Failed, renderFailed),
+)
+```
+
+We see that there is no longer any mention of the `model` argument in the 
+new version. This is a so-called point-free style, where the 'point' is the 
+main (primary) argument, the subject, of the function call.
 
 ## See also
 

@@ -3,9 +3,11 @@ import { Any, is, Type, ValueObject, Void } from './types'
 
 let id = x => x
 let has = (k, x) => Object.prototype.hasOwnProperty.call(x, k)
+let has$ = k => x => has(k, x)
 let valueOf = x => is(ValueObject, x) ? x.value : x
 let partial = (f, ...args) => f.bind(undefined, ...args)
 let tap = (f, x) => (f(x), x)
+let tap$ = f => x => tap(f, x)
 let log = partial(tap, x => console.log(x))
 let using = (expressions, fn) => fn(...expressions)
 
@@ -13,7 +15,6 @@ let Assign = Type.of()
 let Append = Type.of()
 let Call = Type.of()
 let Merge = Type.of()
-let AsyncCall = Type.of()
 let Delete = Type.of()
 let Pluck = Type.of()
 let KeyOf = Type.of()
@@ -70,6 +71,7 @@ let get = (path, x) => {
   }
   return x
 }
+let get$ = path => x => get(path, x)
 
 let getKey = (k, x) => match(k,
   when(KeyOf, v => keyOf(v, x)),
@@ -170,34 +172,39 @@ let patch = (path, x) => {
   )
 }
 
+let patch$ = path => x => patch(path, x)
+
 let randId = () => Math.random().toString(36).slice(2)
 
-let piped = (f, ...fns) => fns.reduce((f, g) => (...args) => g(f(...args)), f)
 let pipe = (x, ...fns) => fns.reduce((x, f) => f(x), x)
+let pipe$ = (...fns) => x => pipe(x, ...fns)
 
 export {
   Assign,
   Append,
   Call,
-  AsyncCall,
   Merge,
   Delete,
   Pluck,
   KeyOf,
   IndexOf,
   has,
+  has$,
   valueOf,
   id,
   partial,
   log,
   using,
   tap,
+  tap$,
   copy,
   merge,
   keyOf,
   get,
+  get$,
   patch,
+  patch$,
   randId,
-  piped,
   pipe,
+  pipe$,
 }

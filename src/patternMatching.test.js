@@ -1,8 +1,8 @@
-import { match, through, when, whenElse, whenRaw } from './patternMatching'
+import { match, match$, through, when, whenElse, whenRaw } from './patternMatching'
 import { id } from './tools'
 import { Type } from './types'
 
-describe('pattern matching', () => {
+describe('match', () => {
   test('match one of the patterns', () => {
     expect(match([1, 2],
       when(Array, x => x[1]),
@@ -51,6 +51,19 @@ describe('pattern matching', () => {
       when(Array, x => x[1]),
       through,
     )).toBe(3)
+  })
+})
 
+describe('match$', () => {
+  test('match one of the patterns', () => {
+    expect(match$(
+      when(Array, x => x[1]),
+      when(Number, id),
+    )([1, 2])).toBe(2)
+
+    expect(match$(
+      when(Array, x => x[1]),
+      when(Number, id),
+    )(10)).toBe(10)
   })
 })

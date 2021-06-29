@@ -27,8 +27,8 @@ take advantage of them when constructing your application.
   * [Call](#call)
   * [Specifying a key/index by value](#specifying-a-keyindex-by-value)
 * [using(expressions, f)](#usingexpressions-f)
-* [piped(...fns)](#pipedfns)
 * [pipe(x, ...fns)](#pipex-fns)
+* [Curried aliases](#curried-aliases)
 * [See also](#see-also)
 
 <!-- vim-markdown-toc -->
@@ -604,31 +604,6 @@ let view = model => ((isDisabled = someExpensiveOperation(model)) => (
 If you don't mind the extra parentheses, this is a valid, and very slightly more
 efficient, solution for avoiding the `return` statement.
 
-## piped(...fns)
-
-Create a function that will accept any number of arguments and pipe the 
-arguments though each function given as arguments. `piped(f, g)` is 
-therefore equivalent of `(...args) => g(f(...args))`. 
-
-Because of the way how pipes work, only the first function in the pipe can take
-more than one argument, as any subsequent function must accept the return value
-of the previous one. Use partial application to convert functions with 
-multiple arguments into a single-argument function (you may need to work on 
-the argument order).
-
-```javascript
-import { piped } from 'movium'
-
-let inc = x => x + 1
-let dbl = x => x * 2
-let incDbl = pipe(inc, dbl)
-
-incDbl(2)
-// => 6
-```
-
-**NOTE:** There is also a function called `pipe()` which does something similar.
-
 ## pipe(x, ...fns)
 
 Pipe the value `x` through any number of function passed as second and 
@@ -645,8 +620,22 @@ pipe(2, inc, dbl)
 // => 6
 ```
 
-**NOTE:** There is also a function called `piped()` which does something 
-similar.
+## Curried aliases
+
+Some functions in the `tools` module are not well-suited to partial
+application, (e.g., `pipe()`), or they may be used so often that partially
+applying them can be cumbersome (e.g., `patch()`). Because of this, Movium
+provides a curried version for each. By convention, the curried version has
+a `$` character appended to the name. Note that the order of arguments may be
+flipped depending on the function.
+
+Here is a list of curried variants of the functions:
+
+- `patch(path, x)` - `patch$(path)(x)`
+- `pipe(x, ...fns)` - `pipe$(...fns)(x)`
+- `tap(f, x)` - `tap$(f)(x)`
+- `has(k, x)` - `has$(k)(x)`
+- `get(path, x)` - `get$(path)(x)`
 
 ## See also
 

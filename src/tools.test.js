@@ -8,14 +8,18 @@ import {
   get,
   has,
   id,
+  IndexOf,
   KeyOf,
   keyOf,
   log,
   merge,
   Merge,
   partial,
-  patch, piped,
-  Pluck, pipe,
+  patch,
+  patch$,
+  pipe,
+  pipe$,
+  Pluck,
   tap,
   using,
   valueOf,
@@ -533,7 +537,14 @@ describe('patch', () => {
     let x = { foo: [1, 2, 3, 4] }
     let v = ['foo', KeyOf.val(3), Call.val(x => x + 1)]
     let y = patch(v, x)
-    expect(y).toEqual({ foo: [1, 2, 4, 4]})
+    expect(y).toEqual({ foo: [1, 2, 4, 4] })
+  })
+
+  test('specify an array index using IndexOf alias', () => {
+    let x = { foo: [1, 2, 3, 4] }
+    let v = ['foo', IndexOf.val(3), Call.val(x => x + 1)]
+    let y = patch(v, x)
+    expect(y).toEqual({ foo: [1, 2, 4, 4] })
   })
 
   test('specify an object key using a value', () => {
@@ -562,6 +573,15 @@ describe('patch', () => {
     let v = ['foo', Call.val(() => Pluck.val(3))]
     let y = patch(v, x)
     expect(y).toEqual({ foo: [1, 2, 4] })
+  })
+})
+
+describe('patch$', () => {
+  test('assign to a path within the object', () => {
+    let x = { foo: { bar: 1, baz: 2 } }
+    let v = ['foo', 'bar', 2]
+    let y = patch$(v)(x)
+    expect(y).toEqual({ foo: { bar: 2, baz: 2 } })
   })
 })
 
@@ -607,16 +627,6 @@ describe('using', () => {
   })
 })
 
-describe('piped', () => {
-  test('pipe functions', () => {
-    let inc = x => x + 1
-    let dbl = x => x * 2
-
-    expect(piped(inc, dbl)(2)).toBe(6)
-    expect(piped(dbl, inc)(2)).toBe(5)
-  })
-})
-
 describe('pipe', () => {
   test('pipe functions', () => {
     let inc = x => x + 1
@@ -626,3 +636,14 @@ describe('pipe', () => {
     expect(pipe(2, dbl, inc)).toBe(5)
   })
 })
+
+describe('pipe$', () => {
+  test('pipe functions', () => {
+    let inc = x => x + 1
+    let dbl = x => x * 2
+
+    expect(pipe$(inc, dbl)(2)).toBe(6)
+    expect(pipe$(dbl, inc)(2)).toBe(5)
+  })
+})
+
