@@ -4,6 +4,14 @@
 - Semver is not observed prior to version 1.0.0.
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
+  
+# 0.11.0
+
+- Add new `pipe()` function for function composition
+- Add curried versions of functions: `patch$()`, `get$()`, `has$()`, `touch$()`, 
+  `match$()`, `pipe$()`
+- Disable the `specialEventListeners` module in environments where there are 
+  no `window` and/or `document` globals (e.g., NodeJS)
 
 # 0.10.0 💣
 
