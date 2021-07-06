@@ -5,6 +5,11 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
   
+# 0.11.1
+
+- Fixed http response objects not being true value objects for error 
+  responses; this makes the code behave as documented prior to this release
+  
 # 0.11.0
 
 - Add new `pipe()` function for function composition
