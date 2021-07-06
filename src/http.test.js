@@ -16,6 +16,7 @@ import {
   textResponse,
   XFormData,
 } from './http'
+import { match, when } from './patternMatching'
 import { is } from './types'
 
 const { request } = require('./http')
@@ -194,6 +195,20 @@ describe('jsonResponse', () => {
         expect(result.value).toEqual(Error('Network error'))
       })
       .then(done)
+  })
+
+  test('use http error response in pattern matching', (done) => {
+    fetch.mockResponseOnce('{"foo":"omg"}', { status: 400 })
+
+    GET('http://example.com/')
+      .expect(jsonResponse)
+      .then(result => {
+        match(result,
+          when(HttpInvalidRequest, data =>
+            expect(data).toEqual({ foo: 'omg' }))
+        )
+        done()
+      })
   })
 })
 

@@ -66,10 +66,9 @@ let expecter = getter => promise => promise
   .then(res => getter(res)
     .then(data => res.ok
       ? HttpResult.val(data)
-      : using([STATUS_PROTOS[res.status] || HttpBadResponse], proto => proto.of({
-        status: res.status,
-        value: data,
-      })),
+      : using([STATUS_PROTOS[res.status] || HttpBadResponse], proto =>
+        proto.of({ status: res.status }).val(data),
+      ),
     ),
   )
   .catch(err => HttpRequestError.val(err))
