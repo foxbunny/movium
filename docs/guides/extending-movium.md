@@ -76,13 +76,13 @@ It is quite easy to write custom properties, however.
 A property function such as `onClick` or `href` are functions that take some
 inputs, and return a function that either:
 
-- take an updater function and return a path used in `assignPath()`
-- directly return a path used in `assignPath()`
+- take an updater function and return a path used in `patch()`
+- directly return a path used in `patch()`
 
 The updater function is called with a message object which then get relayed to
 the update function along with the currrent snapshot of the model. The path is
 an array of property names that ends with a value (see
-[tools](./tools.md#assignpathpath-x)).
+[tools](./tools.md#patchpath-x)).
 
 Here's an example of a custom event handler property:
 

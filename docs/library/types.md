@@ -21,7 +21,7 @@ code.
 For instance, `Any` means nothing to the JavaScript compiler. It's just an
 object. However, when we use it with `is()`, it means 'any type'. Similarly,
 `Append` doesn't mean anything to the JavaScript compiler, but when used with
-`assignPath()` (see [tools](./tools.md)), it means 'value to be appended at the
+`patch()` (see [tools](./tools.md)), it means 'value to be appended at the
 specified path'.
 
 ## Contents

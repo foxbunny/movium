@@ -73,7 +73,7 @@ and returns a wrapped message object.
 Here's an example of a simple scoped view with matching update function:
 
 ```javascript
-import { Msg, scope, div, match, when, assignPath } from 'movium'
+import { Msg, scope, div, match, when, patch } from 'movium'
 import * as submodule from './submodule'
 
 let init = () => ({
@@ -84,7 +84,7 @@ let InSubmodule = Msg.of()
 
 let update = (msg, model) => match(msg, 
   when(InSubmodule, msg => 
-    assignPath(['sub', submodule.update(msg, model.submodule)], model)
+    patch(['sub', submodule.update(msg, model.submodule)], model)
   ),
 )
 
@@ -104,7 +104,7 @@ Here's another example when we want to render multiple instances of another
 module's view:
 
 ```javascript
-import { Msg, scope, div, match, when, assignPath, Call } from 'movium'
+import { Msg, scope, div, match, when, patch, Call } from 'movium'
 import * as submodule from './submodule'
 
 let init = () => ({
@@ -118,7 +118,7 @@ let InSubmodule = Msg.of()
 
 let update = (msg, model) => match(msg, 
   when(InSubmodule, ({ msg, item }) => 
-    assignPath([
+    patch([
       'sub', 
       Call.val(x => x === item ? submodule.update(msg, x) : x),
     ], model)
@@ -171,13 +171,13 @@ let update = (msg, model) => Msg.shouldSkipUndo(msg)
 
 // Module B
 
-import { Msg, assignPath, Append } from 'movium'
+import { Msg, patch, Append } from 'movium'
 
 let Start = Msg.of()
 let Update = Msg.of()
 let Finish = Msg.of()
 
-assignPath(['skipUndo', [...Msg.skipUndo, Start, Update]], Msg)
+patch(['skipUndo', [...Msg.skipUndo, Start, Update]], Msg)
 ```
 
 ## Task
@@ -248,7 +248,7 @@ messages coming from the book list module.
 Let's first look at what we usually do when we do not have to deal with tasks:
 
 ```javascript
-import { Msg, match, when, assignPath, Call } from 'movium'
+import { Msg, match, when, patch, Call } from 'movium'
 import * as bookList from './book-list'
 
 let init = () => ({
@@ -259,7 +259,7 @@ let InBookList = Msg.of()
 
 let update = (msg, model) => match(msg,
   when(InBookList, msg => 
-    assignPath(
+    patch(
       ['books', Call.val(books => bookList.update(msg, books)], 
       model
     )
@@ -273,7 +273,7 @@ it does, then `model.books` becomes a `Task` object, which is not what we want.
 To address this, we use the `Task.delegate` function like this:
 
 ```javascript
-import { Msg, match, when, assignPath, Task, Any } from 'movium'
+import { Msg, match, when, patch, Task, Any } from 'movium'
 
 // ....
 
@@ -281,11 +281,11 @@ let update = (msg, model) => match(msg,
   when(InBookList, msg => 
     match(bookList.update(msg, model.books),
       when(Task, task => Task.delegate(
-        books => assignPath(['books', books], model),
+        books => patch(['books', books], model),
         InBookList,
         task,
       )),
-      when(Any, books => assignPath(['books', books], model)),
+      when(Any, books => patch(['books', books], model)),
     )
   ),
 )
@@ -308,13 +308,13 @@ this is a typical case, Movium provides a `delegate()` function which
 captures this pattern. The last example can be rewritten as follows:
 
 ```javascript
-import { Msg, match, when, assignPath, Task, Any, delegate } from 'movium'
+import { Msg, match, when, patch, Task, Any, delegate } from 'movium'
 
 // ....
 
 let update = (msg, model) => match(msg,
   when(InBookList, msg => delegate(
-    books => assignPath(['books', books], model),
+    books => patch(['books', books], model),
     InBookList, 
     bookList.update(msg, model.books),
   )),
