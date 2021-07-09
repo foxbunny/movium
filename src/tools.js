@@ -9,7 +9,6 @@ let partial = (f, ...args) => f.bind(undefined, ...args)
 let tap = (f, x) => (f(x), x)
 let tap$ = f => x => tap(f, x)
 let log = partial(tap, x => console.log(x))
-let using = (expressions, fn) => fn(...expressions)
 
 let Assign = Type.of()
 let Append = Type.of()
@@ -178,6 +177,8 @@ let randId = () => Math.random().toString(36).slice(2)
 
 let pipe = (x, ...fns) => fns.reduce((x, f) => f(x), x)
 let pipe$ = (...fns) => x => pipe(x, ...fns)
+let apply = (args, f) => f(...args)
+let apply$ = f => args => apply(args, f)
 
 export {
   Assign,
@@ -194,7 +195,6 @@ export {
   id,
   partial,
   log,
-  using,
   tap,
   tap$,
   copy,
@@ -207,4 +207,6 @@ export {
   randId,
   pipe,
   pipe$,
+  apply,
+  apply$,
 }

@@ -81,7 +81,7 @@ exactly expensive. Because of this, we will create a function that will let us
 invoke functions based on the route:
 
 ```javascript
-let withPage = (handleMiss, handleMatch) => using(
+let withPage = (handleMiss, handleMatch) => apply(
   window.location.hash.slice(1).split('/'),
   (page, ...params) => match(PAGE_MODULES[page],
     when(undefined, handleMiss),

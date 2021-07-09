@@ -26,8 +26,8 @@ take advantage of them when constructing your application.
   * [Pluck](#pluck)
   * [Call](#call)
   * [Specifying a key/index by value](#specifying-a-keyindex-by-value)
-* [using(expressions, f)](#usingexpressions-f)
 * [pipe(x, ...fns)](#pipex-fns)
+* [apply(args, f)](#applyargs-f)
 * [Curried aliases](#curried-aliases)
 * [See also](#see-also)
 
@@ -524,86 +524,6 @@ The `KeyOf` type has an alias called `IndexOf` that can be used to clarify
 that we are talking about array indices. There is no difference except for 
 the name.
 
-## using(expressions, f)
-
-This function simply calls a function `f` with a values in the `expression`
-array.
-
-To explain what problem this solves, let's first take a look at the following
-example:
-
-```javascript
-import { div, button, disabled } from 'movium'
-
-let someExpensiveOperation = () => { /* ... */ }
-
-let view = model => (
-  div(['menu'],
-    button([disabled(someExpensiveOperation())], 'First option'),
-    button([disalbed(someExpensiveOperation())], 'Second option'),
-  )
-)
-```
-
-We do not want to repeatedly call `someExpensiveOperation()`, so we need assign
-it to a variable:
-
-```javascript
-import { div, button, disabled } from 'movium'
-
-let someExpensiveOperation = model => { /* ... */ }
-
-let view = model => {
-  let isDisabled = someExpensiveOperation(model)
-  
-  return (
-    div(['menu'],
-      button([disabled(isDisalbed)], 'First option'),
-      button([disalbed(isDisabled)], 'Second option'),
-    )
-  )
-}
-```
-
-There is nothing wrong with the solution. However, the curly braces and
-the `return` statement may be an eye-sore for some. For a slight stylistic
-variation, we can rewrite the last example using the `using()` function:
-
-```javascript
-import { div, button, disabled, using } from 'movium'
-
-let someExpensiveOperation = model => { /* ... */ }
-
-let view = model => using(
-  [someExpensiveOperation(model)],
-  isDisabled => (
-    div(['menu'],
-      button([disabled(isDisalbed)], 'First option'),
-      button([disalbed(isDisabled)], 'Second option'),
-    )
-  )
-)
-```
-
-An alternative to `using()` is an immediately invoked function expression with
-default argument values:
-
-```javascript
-import { div, button, disabled, using } from 'movium'
-
-let someExpensiveOperation = model => { /* ... */ }
-
-let view = model => ((isDisabled = someExpensiveOperation(model)) => (
-  div(['menu'],
-    button([disabled(isDisalbed)], 'First option'),
-    button([disalbed(isDisabled)], 'Second option'),
-  )
-))()
-```
-
-If you don't mind the extra parentheses, this is a valid, and very slightly more
-efficient, solution for avoiding the `return` statement.
-
 ## pipe(x, ...fns)
 
 Pipe the value `x` through any number of function passed as second and 
@@ -619,6 +539,23 @@ let dbl = x => x * 2
 pipe(2, inc, dbl)
 // => 6
 ```
+
+## apply(args, f)
+
+Calls the function `f` with specified args `args`. The first argument should 
+be an array of arguments. This is exactly the same as doing `f(...args)` or 
+`f.apply(undefined, args)`.
+
+```javascript
+import { apply } from 'movium'
+
+let nums = [1, 2]
+let f = (x, y) => x + y
+apply(nums, f)
+// => 3
+```
+
+**NOTE:** This used to be called `using()` in versions of Movium prior to 0.12.
 
 ## Curried aliases
 
@@ -636,6 +573,7 @@ Here is a list of curried variants of the functions:
 - `tap(f, x)` - `tap$(f)(x)`
 - `has(k, x)` - `has$(k)(x)`
 - `get(path, x)` - `get$(path)(x)`
+- `apply(args, f)` - `apply$(f)(args)`
 
 ## See also
 

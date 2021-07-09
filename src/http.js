@@ -1,5 +1,5 @@
 import { match, when } from './patternMatching'
-import { using } from './tools'
+import { apply } from './tools'
 import { Any, Type } from './types'
 
 let HttpRequest = Type.of({
@@ -66,7 +66,7 @@ let expecter = getter => promise => promise
   .then(res => getter(res)
     .then(data => res.ok
       ? HttpResult.val(data)
-      : using([STATUS_PROTOS[res.status] || HttpBadResponse], proto =>
+      : apply([STATUS_PROTOS[res.status] || HttpBadResponse], proto =>
         proto.of({ status: res.status }).val(data),
       ),
     ),

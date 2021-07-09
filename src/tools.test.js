@@ -1,6 +1,8 @@
 import { Msg } from './framework'
 import {
   Append,
+  apply,
+  apply$,
   Assign,
   Call,
   copy,
@@ -21,7 +23,6 @@ import {
   pipe$,
   Pluck,
   tap,
-  using,
   valueOf,
 } from './tools'
 import { Type } from './types'
@@ -618,15 +619,6 @@ describe('log', () => {
   })
 })
 
-describe('using', () => {
-  test('call a function with a set of expressions', () => {
-    let f = jest.fn((x, y, z) => x + y + z)
-    let x = using([1, 2, 3], f)
-    expect(f).toHaveBeenCalledWith(1, 2, 3)
-    expect(x).toBe(6)
-  })
-})
-
 describe('pipe', () => {
   test('pipe functions', () => {
     let inc = x => x + 1
@@ -647,3 +639,24 @@ describe('pipe$', () => {
   })
 })
 
+describe('apply', () => {
+  test('apply function to arguments', () => {
+    let f = jest.fn()
+    let args = [1, 2, 3]
+
+    apply(args, f)
+
+    expect(f).toHaveBeenCalledWith(...args)
+  })
+})
+
+describe('apply$', () => {
+  test('apply function to arguments', () => {
+    let f = jest.fn()
+    let args = [1, 2, 3]
+
+    apply$(f)(args)
+
+    expect(f).toHaveBeenCalledWith(...args)
+  })
+})
