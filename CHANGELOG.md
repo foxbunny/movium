@@ -5,6 +5,12 @@
 - Until version 1.0.0, the author **will** be liberal with breaking changes to
   flesh out the API as early as possible.
   
+# 0.12 💣
+
+- 💣 Renamed `using()` to `apply()`
+- Add `ap$()`, curried version of `using()`/`apply()`
+- Fix outdated references to `assignPath()` in the docs
+  
 # 0.11.1
 
 - Fixed http response objects not being true value objects for error 

@@ -21,7 +21,7 @@
     ]
   },
   "dependencies": {
-    "movium": "^0.11.1"
+    "movium": "^0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",
